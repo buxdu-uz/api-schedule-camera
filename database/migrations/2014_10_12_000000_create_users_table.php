@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('employee_id')->index()->unique();
             $table->string('avatar')->nullable();
             $table->string('password');
-            $table->rememberToken();
             $table->timestamps();
         });
     }

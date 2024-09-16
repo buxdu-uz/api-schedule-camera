@@ -8,12 +8,14 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class UserRepository
 {
     /**
+     * @param $filter
      * @param $paginate
      * @return LengthAwarePaginator
      */
-    public function paginate($paginate): LengthAwarePaginator
+    public function paginate($filter,$paginate): LengthAwarePaginator
     {
         return User::query()
+            ->Filter($filter)
             ->orderByDesc('id')
             ->paginate($paginate);
     }

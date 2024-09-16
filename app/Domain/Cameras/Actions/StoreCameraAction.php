@@ -24,7 +24,7 @@ class StoreCameraAction
                 $camera->name = $cam['name'];
                 $camera->link = $cam['link'];
                 $camera->save();
-                $camera->syncRoles('camera');
+//                $camera->syncRoles('camera');
                 $data[] = $camera;
             }
         } catch (Exception $exception) {

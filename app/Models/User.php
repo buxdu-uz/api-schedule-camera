@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, Filterable;
 
     public const TEACHER_ROLE_ID = 6;
 
@@ -60,14 +61,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class);
     }
-
-//    public function getStudentCount(): int
-//    {
-//        $result = 0;
-//        foreach ($this->groups as $group) {
-//            $result += $group->student->count();
-//        }
-//
-//        return $result;
-//    }
 }

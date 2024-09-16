@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Domain\Cameras\Models;
-
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Traits\Filterable;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class Camera extends Authenticatable
+class Camera extends Model
 {
-    use HasApiTokens, HasRoles;
+    use Filterable;
 }

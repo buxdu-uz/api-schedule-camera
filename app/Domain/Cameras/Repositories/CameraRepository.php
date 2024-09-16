@@ -8,12 +8,14 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class CameraRepository
 {
     /**
+     * @param $filter
      * @param $paginate
      * @return LengthAwarePaginator
      */
-    public function paginate($paginate): LengthAwarePaginator
+    public function paginate($filter,$paginate): LengthAwarePaginator
     {
         return Camera::query()
+            ->Filter($filter)
             ->orderByDesc('id')
             ->paginate($paginate);
     }

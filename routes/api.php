@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/update/login/{user}', [LoginController::class, 'updateLoginPassword']);
 
-Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum,role:admin']], function () {
+Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::get('users', [UserController::class, 'paginate']);
     Route::apiResource('cameras', CameraController::class);
 });

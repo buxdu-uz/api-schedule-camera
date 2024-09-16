@@ -8,9 +8,13 @@ use App\Domain\Cameras\DTO\StoreCameraDTO;
 use App\Domain\Cameras\DTO\UpdateCameraDTO;
 use App\Domain\Cameras\Models\Camera;
 use App\Domain\Cameras\Repositories\CameraRepository;
+use App\Domain\Cameras\Requests\CameraFilterRequest;
 use App\Domain\Cameras\Requests\StoreCameraRequest;
 use App\Domain\Cameras\Requests\UpdateCameraRequest;
 use App\Domain\Cameras\Resources\CameraResource;
+use App\Domain\Users\Requests\UserFilterRequest;
+use App\Filters\CameraFilter;
+use App\Filters\UserFilter;
 use App\Http\Controllers\Controller;
 use Exception;
 
@@ -32,9 +36,10 @@ class CameraController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(CameraFilterRequest $request)
     {
-        return $this->successResponse('', $this->cameras->paginate(\request()->query('paginate', 20)));
+        $filter = app()->make(CameraFilter::class, ['queryParams' => array_filter($request->validated())]);
+        return $this->successResponse('', $this->cameras->paginate($filter, \request()->query('paginate', 20)));
     }
 
     /**

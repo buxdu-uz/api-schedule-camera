@@ -7,21 +7,37 @@ use JetBrains\PhpStorm\ArrayShape;
 
 class UserFilter extends AbstractFilter
 {
-    public const REQUEST_ID = 'request_id';
+    public const NAME = 'name';
+
+    public const EMPLOYEE_ID = 'employee_id';
+
+    public const DEPARTMENT_ID = 'department_id';
 
     /**
      * @return array[]
      */
-    #[ArrayShape([self::REQUEST_ID => "array"])] protected function getCallbacks(): array
+    #[ArrayShape([self::NAME => "array", self::EMPLOYEE_ID => "array", self::DEPARTMENT_ID => "array"])] protected function getCallbacks(): array
     {
         return [
-            self::REQUEST_ID => [$this, 'request_id']
+            self::NAME => [$this, 'name'],
+            self::EMPLOYEE_ID => [$this, 'employee_id'],
+            self::DEPARTMENT_ID => [$this, 'department_id'],
         ];
     }
 
-    public function con_subject_id(Builder $builder, $value): void
+    public function name(Builder $builder, $value): void
     {
-        $builder->whereRaw('JSON_CONTAINS(consumptions->"$[*].conSubject.id", "' . $value . '")');
+        $builder->where('name','like','%'.$value.'%');
+    }
+
+    public function employee_id(Builder $builder, $value): void
+    {
+        $builder->where('employee_id',$value);
+    }
+
+    public function department_id(Builder $builder, $value): void
+    {
+        $builder->where('department_id',$value);
     }
 
 }
