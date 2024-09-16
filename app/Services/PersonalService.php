@@ -98,7 +98,6 @@ class PersonalService
                         'decree_number' => $item->decree_number,
                         'contract_date' => date('Y-m-d', $item->contract_date),
                         'decree_date' => date('Y-m-d', $item->decree_date),
-                        'hash' => $item->hash,
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
                 }

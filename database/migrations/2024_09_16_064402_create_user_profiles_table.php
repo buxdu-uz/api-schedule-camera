@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('second_name',100)->nullable();
             $table->string('third_name',100)->nullable();
             $table->unsignedInteger('year_of_enter')->nullable();
-            $table->foreignIdFor(ClassifierOption::class,'h_employee_status')->nullable();
-            $table->foreignIdFor(ClassifierOption::class,'h_employee_type')->nullable();
+            $table->unsignedBigInteger('h_employee_status')->index()->nullable();
+            $table->unsignedBigInteger('h_employee_type')->index()->nullable();
             $table->date('birth_date')->nullable();
             $table->string('contract_number')->nullable();
             $table->string('decree_number')->nullable();
@@ -33,8 +33,8 @@ return new class extends Migration
             $table->string('passport_where')->nullable();
             $table->date('contract_date')->nullable();
             $table->date('decree_date')->nullable();
-            $table->string('hash',64)->nullable();
             $table->json('tutorGroups')->nullable();
+            $table->timestamps();
         });
     }
 
