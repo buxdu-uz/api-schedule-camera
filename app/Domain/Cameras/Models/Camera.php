@@ -6,6 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $link
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera filter(\App\Filters\FilterInterface $filter)
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera whereLink($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Camera whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Camera extends Model
 {
     use Filterable;

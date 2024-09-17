@@ -39,23 +39,23 @@ class UserSeeder extends Seeder
     public function createFirstRoles(): void
     {
         $this->createAdminUser();
-        $role = Role::updateOrCreate(['name' => 'admin']);
         Role::updateOrCreate(['name' => 'manager']);
         Role::updateOrCreate(['name' => 'personal']);
         Role::updateOrCreate(['name' => 'teacher']);
         Role::updateOrCreate(['name' => 'dean']);
-        $permission = Permission::create(['name' => 'all']);
-        $role->givePermissionTo($permission);
     }
 
     public function createAdminUser(): void
     {
+        $role = Role::updateOrCreate(['name' => 'admin']);
+        $permission = Permission::create(['name' => 'all']);
+        $role->givePermissionTo($permission);
         $admin = User::create([
             'name' => 'Administarator',
             'login' => 'admin',
             'employee_id' => '10000001',
             'password' => 'admin',
         ]);
-        $admin->syncRoles('admin');
+        $admin->syncRoles($role->name);
     }
 }

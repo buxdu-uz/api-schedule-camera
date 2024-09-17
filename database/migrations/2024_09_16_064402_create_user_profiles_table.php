@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Departments\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +16,8 @@ return new class extends Migration
         Schema::create('user_profiles', function (Blueprint $table) {
             $table->foreignIdFor(User::class)->index()->unique()
                 ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->unsignedBigInteger('department_id')->index();
+            $table->foreignIdFor(Department::class)->nullable()
+                ->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->string('full_name')->index();
             $table->string('short_name',100);
             $table->string('first_name',100)->nullable();

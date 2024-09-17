@@ -3,6 +3,7 @@
 namespace App\Services;
 
 
+use App\Domain\Departments\Models\Department;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
@@ -84,7 +85,7 @@ class PersonalService
                     $user->profile()->updateOrCreate([
                         'user_id' => $user->id,
                     ], [
-                        'department_id' => $item->department->id,
+                        'department_id' => Department::getIdByCode($item->department->code) ?? null,
                         'full_name' => $item->full_name,
                         'short_name' => $item->short_name,
                         'first_name' => $item->first_name,
