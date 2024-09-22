@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Domain\Users\Repositories\UserRepository;
 use App\Domain\Users\Requests\UserFilterRequest;
+use App\Domain\Users\Resources\UserResource;
 use App\Filters\UserFilter;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -25,12 +26,12 @@ class UserController extends Controller
     }
 
     /**
-     * @return JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @throws BindingResolutionException
      */
     public function paginate(UserFilterRequest $request)
     {
         $filter = app()->make(UserFilter::class, ['queryParams' => array_filter($request->validated())]);
-        return $this->successResponse('', $this->users->paginate($filter,\request()->query('paginate', 20)));
+        return UserResource::collection($this->users->paginate($filter,\request()->query('paginate', 20)));
     }
 }

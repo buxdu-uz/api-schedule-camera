@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             'hemis_id' => $this->employee_id,
             'avatar' => $this->avatar,
             'login' => $this->login,
+            'role' => $this->getRoleNames(),
             'profile' => new UserProfileResource($this->profile)
         ];
     }
