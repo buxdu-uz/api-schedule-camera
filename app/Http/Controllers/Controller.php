@@ -19,7 +19,7 @@ class Controller extends BaseController
     public function successResponse($message, $result = [], $code = 200)
     {
         $response = [
-            'success' => true,
+            'status' => true,
             'message' => $message,
             'data'    => $result
         ];
@@ -37,8 +37,7 @@ class Controller extends BaseController
     public function errorResponse($message, $result = [], $code = 400): \Illuminate\Http\JsonResponse
     {
         $response = [
-            'success' => false,
-            'error'=>true,
+            'status' => false,
             'message' => $message
         ];
 

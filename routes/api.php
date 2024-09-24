@@ -13,8 +13,8 @@ Route::post('/update/login/{user}', [LoginController::class, 'updateLoginPasswor
 Route::get('/buildings',[BuildingController::class,'index']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
-    Route::get('users', [UserController::class, 'paginate']);
     Route::post('/camera/import', [CameraController::class, 'importExel']);
+    Route::get('users', [UserController::class, 'paginate']);
     Route::get('departments', [DepartmentController::class, 'getAll']);
     Route::apiResource('cameras', CameraController::class);
 });
