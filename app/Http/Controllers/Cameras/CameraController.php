@@ -16,7 +16,10 @@ use App\Domain\Users\Requests\UserFilterRequest;
 use App\Filters\CameraFilter;
 use App\Filters\UserFilter;
 use App\Http\Controllers\Controller;
+use App\Imports\CameraImport;
 use Exception;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CameraController extends Controller
 {
@@ -86,5 +89,19 @@ class CameraController extends Controller
         $camera->delete();
 
         return $this->successResponse('Camera deleted successfully.');
+    }
+
+    public function importExel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required'
+        ]);
+
+        try {
+            Excel::import(new CameraImport, $request->file('file'));
+            return $this->successResponse('Camera import successfully.');
+        }catch (Exception $exception){
+            return $this->errorResponse($exception->getMessage());
+        }
     }
 }

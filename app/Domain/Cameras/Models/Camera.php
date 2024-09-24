@@ -7,7 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -28,4 +28,5 @@ use Spatie\Permission\Traits\HasRoles;
 class Camera extends Model
 {
     use Filterable;
+    protected $fillable = ['name','link'];
 }
