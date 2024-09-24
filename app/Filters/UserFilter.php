@@ -37,7 +37,9 @@ class UserFilter extends AbstractFilter
 
     public function department_id(Builder $builder, $value): void
     {
-        $builder->where('department_id',$value);
+        $builder->whereHas('profile', function ($query) use ($value) {
+            $query->where('department_id',$value);
+        });
     }
 
 }

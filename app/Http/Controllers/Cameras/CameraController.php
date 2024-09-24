@@ -39,7 +39,7 @@ class CameraController extends Controller
     public function index(CameraFilterRequest $request)
     {
         $filter = app()->make(CameraFilter::class, ['queryParams' => array_filter($request->validated())]);
-        return $this->successResponse('', $this->cameras->paginate($filter, \request()->query('paginate', 20)));
+        return CameraResource::collection($this->cameras->paginate($filter, \request()->query('paginate', 20)));
     }
 
     /**
