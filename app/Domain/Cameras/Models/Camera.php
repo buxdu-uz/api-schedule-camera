@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Domain\Cameras\Models;
+use App\Domain\Rooms\Models\Room;
 use App\Models\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -29,4 +31,9 @@ class Camera extends Model
 {
     use Filterable;
     protected $fillable = ['name','link'];
+
+    public function cameras(): BelongsToMany
+    {
+        return $this->belongsToMany(Room::class,'room_camera','camera_id','room_id');
+    }
 }

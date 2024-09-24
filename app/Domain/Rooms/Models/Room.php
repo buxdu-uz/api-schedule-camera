@@ -2,11 +2,14 @@
 
 namespace App\Domain\Rooms\Models;
 
+use App\Domain\Cameras\Models\Camera;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $building_id
@@ -28,4 +31,9 @@ use Illuminate\Database\Eloquent\Model;
 class Room extends Model
 {
     use HasFactory;
+
+    public function cameras(): BelongsToMany
+    {
+        return $this->belongsToMany(Camera::class,'room_camera','room_id','camera_id');
+    }
 }

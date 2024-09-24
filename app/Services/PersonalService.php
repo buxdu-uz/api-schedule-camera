@@ -101,6 +101,7 @@ class PersonalService
                         'decree_date' => date('Y-m-d', $item->decree_date),
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
+                    $user->syncRoles('teacher');
                 }
                 DB::commit();
             } catch (\Exception $exception) {
