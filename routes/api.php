@@ -14,7 +14,7 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/update/login/{user}', [LoginController::class, 'updateLoginPassword']);
 Route::get('/buildings',[BuildingController::class,'index']);
 Route::post('/room/set/camera',[BuildingController::class,'setRoomCamera']);
-Route::get('/groups',[GroupController::class,'getAllGroup']);
+Route::post('/groups',[GroupController::class,'getAllGroup']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::post('/camera/import', [CameraController::class, 'importExel']);

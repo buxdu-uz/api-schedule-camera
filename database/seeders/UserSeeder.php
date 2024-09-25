@@ -39,8 +39,7 @@ class UserSeeder extends Seeder
     public function createFirstRoles(): void
     {
         $this->createAdminUser();
-        Role::updateOrCreate(['name' => 'manager']);
-        Role::updateOrCreate(['name' => 'personal']);
+        Role::updateOrCreate(['name' => 'employee']);
         Role::updateOrCreate(['name' => 'teacher']);
         Role::updateOrCreate(['name' => 'dean']);
     }

@@ -35,7 +35,7 @@ class PersonalService
             if ($result->data->pagination->totalCount > config('hemis.limit')) {
                 for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
                     if ($i === 1) {
-                        $this->store($result);
+                        $this->store($result,$type);
                     } else {
                         $request = new Request(
                             'GET',
@@ -47,7 +47,7 @@ class PersonalService
                         $res = $client->sendAsync($request)->wait();
                         $res = $res->getBody();
                         $result = json_decode($res);
-                        $this->store($result);
+                        $this->store($result,$type);
                     }
                     echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
                 }
@@ -60,12 +60,9 @@ class PersonalService
     /**
      * @throws \Throwable
      */
-    public function store($result): void
+    public function store($result,$type): void
     {
         foreach (collect($result->data->items)->sortBy('id') as $item) {
-//            if ($item->id == 400) {
-//                dd($item);
-//            }
             DB::beginTransaction();
             try {
                 if (!User::where('id', $item->id)
@@ -101,7 +98,11 @@ class PersonalService
                         'decree_date' => date('Y-m-d', $item->decree_date),
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
-                    $user->syncRoles('teacher');
+                    if($type == 'teacher'){
+                        $user->syncRoles('teacher');
+                    }elseif($type == 'employee'){
+                        $user->syncRoles('teacher');
+                    }
                 }
                 DB::commit();
             } catch (\Exception $exception) {
