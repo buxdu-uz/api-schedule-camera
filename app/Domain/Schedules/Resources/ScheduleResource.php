@@ -15,6 +15,7 @@ class ScheduleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+//        dd($this);
         return [
             'id' => $this->id,
             'building' => $this->auditorium->building->name,
@@ -27,7 +28,7 @@ class ScheduleResource extends JsonResource
                 'end_time' => $this->lessonPair->end_time,
             ],
             'camera' => Camera::whereHas('rooms', function ($query) {
-                $query->where('room_id', $this->group->code);
+                $query->where('room_id', $this->auditorium->code);
             })->get()
         ];
     }

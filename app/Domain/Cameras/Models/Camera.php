@@ -32,7 +32,7 @@ class Camera extends Model
     use Filterable;
     protected $fillable = ['name','link'];
 
-    public function cameras(): BelongsToMany
+    public function rooms(): BelongsToMany
     {
         return $this->belongsToMany(Room::class,'room_camera','camera_id','room_id');
     }
