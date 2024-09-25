@@ -101,7 +101,7 @@ class PersonalService
                     if($type == 'teacher'){
                         $user->syncRoles('teacher');
                     }elseif($type == 'employee'){
-                        $user->syncRoles('teacher');
+                        $user->syncRoles('employee');
                     }
                 }
                 DB::commit();

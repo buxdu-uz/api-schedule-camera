@@ -33,12 +33,14 @@ class UserSeeder extends Seeder
         echo "Begin Creating Admin Roles" . PHP_EOL;
         echo "Creating Roles = OK" . PHP_EOL;
         echo "Starting Migrate Hemis Employeds" . PHP_EOL;
-        $this->personal->hemisMigration('all');
+        $this->personal->hemisMigration('employee');
+        $this->personal->hemisMigration('teacher');
     }
 
     public function createFirstRoles(): void
     {
         $this->createAdminUser();
+        Role::updateOrCreate(['name' => 'manager']);
         Role::updateOrCreate(['name' => 'employee']);
         Role::updateOrCreate(['name' => 'teacher']);
         Role::updateOrCreate(['name' => 'dean']);

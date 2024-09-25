@@ -35,8 +35,9 @@ class LoginController extends Controller
         return $this->errorResponse('Login or password error', 404);
     }
 
-    public function updateLoginPassword(UpdateUserRequest $request, User $user)
+    public function updateLoginPassword(UpdateUserRequest $request)
     {
+        $user = Auth::user();
         if (!Hash::check($request->current_password, $user->password)) {
             return $this->errorResponse('Current password is incorrect');
         }

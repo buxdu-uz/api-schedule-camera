@@ -4,6 +4,8 @@ namespace App\Domain\Users\Repositories;
 
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository
 {
@@ -18,5 +20,15 @@ class UserRepository
             ->Filter($filter)
             ->orderByDesc('id')
             ->paginate($paginate);
+    }
+
+    /**
+     * @return Collection|array
+     */
+    public function getAllTeacher(): Collection|array
+    {
+        return User::role('teacher')
+            ->orderBy('name')
+            ->get();
     }
 }
