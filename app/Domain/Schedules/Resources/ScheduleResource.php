@@ -3,6 +3,8 @@
 namespace App\Domain\Schedules\Resources;
 
 use App\Domain\Cameras\Models\Camera;
+use App\Domain\Cameras\Resources\CameraResource;
+use App\Domain\Rooms\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,9 +29,14 @@ class ScheduleResource extends JsonResource
                 'start_time' => $this->lessonPair->start_time,
                 'end_time' => $this->lessonPair->end_time,
             ],
-            'camera' => Camera::whereHas('rooms', function ($query) {
-                $query->where('room_id', $this->auditorium->code);
-            })->get()
+            'camera' => CameraResource::collection(
+                Camera::whereHas('rooms', function ($query) {
+                    $query->where('rooms.code', $this->auditorium->code);
+                })->get()
+            )
+//            'camera' => CameraResource::collection(Camera::whereHas('rooms', function ($query) {
+//        $query->where('room_id', Room::query()->where('code',$this->auditorium->code)->first()->id);
+//    })->get())
         ];
     }
 }
