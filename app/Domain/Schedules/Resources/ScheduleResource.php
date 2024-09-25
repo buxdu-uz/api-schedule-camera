@@ -5,6 +5,7 @@ namespace App\Domain\Schedules\Resources;
 use App\Domain\Cameras\Models\Camera;
 use App\Domain\Cameras\Resources\CameraResource;
 use App\Domain\Rooms\Models\Room;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +18,8 @@ class ScheduleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-//        dd($this);
+        $weekStartTime = Carbon::createFromTimestamp($this->weekStartTime)->format('Y-m-d'); // Start of the week
+        $weekEndTime = Carbon::createFromTimestamp($this->weekEndTime)->format('Y-m-d');
         return [
             'id' => $this->id,
             'building' => $this->auditorium->building->name,
@@ -33,10 +35,11 @@ class ScheduleResource extends JsonResource
                 Camera::whereHas('rooms', function ($query) {
                     $query->where('rooms.code', $this->auditorium->code);
                 })->get()
-            )
-//            'camera' => CameraResource::collection(Camera::whereHas('rooms', function ($query) {
-//        $query->where('room_id', Room::query()->where('code',$this->auditorium->code)->first()->id);
-//    })->get())
+            ),
+            'weeks' => [
+                'week_start_lesson' => $weekStartTime,
+                'week_end_lesson' => $weekEndTime,
+            ]
         ];
     }
 }
