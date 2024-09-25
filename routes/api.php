@@ -20,12 +20,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::apiResource('cameras', CameraController::class);
     Route::post('/camera/import', [CameraController::class, 'importExel']);
     Route::get('users', [UserController::class, 'paginate']);
+    Route::post('/user/set/camera',[UserController::class,'setUserCamera']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
     Route::get('/schedule/list',[ScheduleListController::class,'getScheduleListHemis']);
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
-    Route::get('teachers',[UserController::class,'getAllTeacher']);
+    Route::get('teachers',[UserController::class,'getAllUser']);
 });
 
 Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher']], function () {

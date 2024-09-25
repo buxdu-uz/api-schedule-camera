@@ -23,11 +23,12 @@ class UserRepository
     }
 
     /**
+     * @param $role
      * @return Collection|array
      */
-    public function getAllTeacher(): Collection|array
+    public function getAllTeacher($role): Collection|array
     {
-        return User::role('teacher')
+        return User::role($role)
             ->orderBy('name')
             ->get();
     }

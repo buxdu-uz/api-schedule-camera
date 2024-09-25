@@ -3,6 +3,7 @@
 namespace App\Domain\Cameras\Models;
 use App\Domain\Rooms\Models\Room;
 use App\Models\Traits\Filterable;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
@@ -35,5 +36,10 @@ class Camera extends Model
     public function rooms(): BelongsToMany
     {
         return $this->belongsToMany(Room::class,'room_camera','camera_id','room_id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class,'user_camera','camera_id','user_id');
     }
 }
