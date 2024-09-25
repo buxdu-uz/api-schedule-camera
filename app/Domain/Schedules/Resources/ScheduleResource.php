@@ -30,6 +30,7 @@ class ScheduleResource extends JsonResource
             'lesson_pair' => [
                 'start_time' => $this->lessonPair->start_time,
                 'end_time' => $this->lessonPair->end_time,
+                'lesson_date' => Carbon::createFromTimestamp($this->lesson_date)->format('Y-m-d')
             ],
             'camera' => CameraResource::collection(
                 Camera::whereHas('rooms', function ($query) {
