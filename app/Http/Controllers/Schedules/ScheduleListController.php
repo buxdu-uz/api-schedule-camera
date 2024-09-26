@@ -62,7 +62,6 @@ class ScheduleListController extends Controller
                 }
             }
         }
-//        dd($data);
         $data = $data->sortBy('lessonPair.start_time');
         return $this->successResponse('',ScheduleResource::collection($data));
     }
@@ -111,7 +110,7 @@ class ScheduleListController extends Controller
                 }
             }
         }
-
+        $data = $data->sortBy('lessonPair.start_time');
         return $this->successResponse('',ScheduleResource::collection($data));
     }
 
