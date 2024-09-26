@@ -78,7 +78,7 @@ class ScheduleListController extends Controller
         ];
         $request_api = new Request(
             'GET',
-            config('hemis.host') . 'data/schedule-list?limit=' . config('hemis.limit').'&lesson_date_from='.$current_week_start.'&lesson_date_to='.$current_week_end.'&_group=' . $request->group_id . '&_employee='.Auth::user()->id.'&_auditorium='.$request->room_id,
+            config('hemis.host') . 'data/schedule-list?limit=' . config('hemis.limit').'&lesson_date_from='.$current_week_start.'&lesson_date_to='.$current_week_end.'&_group=' . $request->group_id . '&_employee='.Auth::user()->id.'&_auditorium='.$request->room_code,
             $headers
         );
         $res = $client->sendAsync($request_api)->wait();

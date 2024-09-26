@@ -52,17 +52,31 @@ class UserController extends Controller
     public function setUserCamera(Request $request)
     {
         $request->validate([
-            'user_ids' => 'array|required',
-            'camera_ids' => 'array|required',
+            'users' => 'required'
         ]);
         try {
-            for ($i=0; $i<count($request->user_ids); $i++){
-                $user = User::query()->find($request->user_ids[$i]);
-                $user->cameras()->sync($request->camera_ids[$i]);
+            foreach ($request->users as $user_id => $camera){
+                $user = User::query()->find($user_id);
+                $user->cameras()->sync($camera);
             }
             return $this->successResponse('Cameras were attached to the users');
-        } catch (Exception $exception) {
+        }catch (Exception $exception){
             return $this->errorResponse($exception->getMessage());
         }
+
+//        $request->validate([
+//            'user_ids' => 'array|required',
+//            'camera_ids' => 'array|required',
+//        ]);
+//        try {
+//            for ($i=0; $i<count($request->user_ids); $i++){
+//                $user = User::query()->find($request->user_ids[$i]);
+//                $user->cameras()->sync($request->camera_ids[$i]);
+//            }
+//            return $this->successResponse('Cameras were attached to the users');
+//        } catch (Exception $exception) {
+//            return $this->errorResponse($exception->getMessage());
+//        }
+
     }
 }
