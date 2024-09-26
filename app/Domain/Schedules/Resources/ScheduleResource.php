@@ -33,13 +33,11 @@ class ScheduleResource extends JsonResource
                 'end_time' => $this->lessonPair->end_time,
                 'lesson_date' => Carbon::createFromTimestamp($this->lesson_date)->format('Y-m-d'),
             ],
-//            'camera' => CameraResource::collection(Auth::user()->cameras),
             'weeks' => [
                 'week_start_lesson' => $weekStartTime,
                 'week_end_lesson' => $weekEndTime,
             ]
         ];
-//        dd(Auth::user()->cameras);
         // Only include 'camera' field if the user is not a teacher
         if (Auth::user()->getRoleNames()[0] == 'admin') {
             $baseData['camera'] = CameraResource::collection(

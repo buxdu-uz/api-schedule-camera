@@ -36,6 +36,7 @@ class ScheduleListController extends Controller
         $res = $client->sendAsync($request_api)->wait();
         $res = $res->getBody();
         $result = json_decode($res);
+//        dd($result->data);
         // Check if the request was successful
         if (isset($result->data->pagination->pageCount) && isset($result->data->items)) {
             // Add items from the first page
@@ -61,7 +62,8 @@ class ScheduleListController extends Controller
                 }
             }
         }
-
+//        dd($data);
+        $data = $data->sortBy('lessonPair.start_time');
         return $this->successResponse('',ScheduleResource::collection($data));
     }
 

@@ -14,10 +14,17 @@ use Illuminate\Support\Str;
 
 class PersonalService
 {
+    public mixed $DEAN=25;          //dekan
+    public mixed $DEAN_MUOVINI=25;  //zam dekan
+    public mixed $MANAGER=16;       //kafedra mudiri
+    public mixed $TEACHER=12;       //o'qituvchi
+    public mixed $DEPARTMENT=17;       //bo'lim boshlig'i
+    public mixed $VICE_RECTOR=22;       //O‘quv ishlari bo‘yicha birinchi prorektor
+    public mixed $CHIEF_SPECIALIST=35;
     /**
      * @throws \Throwable
      */
-    public function hemisMigration(string $type = null): void
+    public function hemisMigration($type, $role,$employee_type): void
     {
         $client = new Client();
         $headers = [
@@ -26,42 +33,40 @@ class PersonalService
         ];
         $request = new Request(
             'GET',
-            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit'),
+            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type,
             $headers
         );
         $res = $client->sendAsync($request)->wait();
         $res = $res->getBody();
         $result = json_decode($res);
         if ($result->success === true) {
-            if ($result->data->pagination->totalCount > config('hemis.limit')) {
+//            if ($result->data->pagination->totalCount > config('hemis.limit')) {
                 for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
                     if ($i === 1) {
-                        $this->store($result,$type);
+                        $this->store($result,$role);
                     } else {
                         $request = new Request(
                             'GET',
-                            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config(
-                                'hemis.limit'
-                            ) . '&page=' . $i,
+                            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type . '&page=' . $i,
                             $headers
                         );
                         $res = $client->sendAsync($request)->wait();
                         $res = $res->getBody();
                         $result = json_decode($res);
-                        $this->store($result,$type);
+                        $this->store($result,$role);
                     }
                     echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
                 }
-            }
+//            }
         } else {
-            $this->store($result);
+            $this->store($result,$role);
         }
     }
 
     /**
      * @throws \Throwable
      */
-    public function store($result,$type): void
+    public function store($result,$role): void
     {
         foreach (collect($result->data->items)->sortBy('id') as $item) {
             DB::beginTransaction();
@@ -117,10 +122,21 @@ class PersonalService
                         'decree_date' => date('Y-m-d', $item->decree_date),
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
-                    if($type == 'teacher'){
+                         //Bosh mutaxasis
+                    if($role == $this->DEAN){
+                        $user->syncRoles('dean');
+                    }elseif($role == $this->DEAN_MUOVINI){
+                        $user->syncRoles('dean_deputy');
+                    }elseif($role == $this->MANAGER){
+                        $user->syncRoles('manager');
+                    }elseif($role == $this->TEACHER){
                         $user->syncRoles('teacher');
-                    }elseif($type == 'employee'){
-                        $user->syncRoles('employee');
+                    }elseif($role == $this->DEPARTMENT){
+                        $user->syncRoles('department');
+                    }elseif($role == $this->VICE_RECTOR){
+                        $user->syncRoles('vice_rector');
+                    }elseif($role == $this->CHIEF_SPECIALIST){
+                        $user->syncRoles('chief_specialist');
                     }
                 }
                 DB::commit();

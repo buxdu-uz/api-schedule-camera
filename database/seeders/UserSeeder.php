@@ -16,6 +16,15 @@ class UserSeeder extends Seeder
      */
     public mixed $personal;
 
+    public mixed $DEAN=25;          //dekan
+    public mixed $DEAN_MUOVINI=26;  //zam dekan
+    public mixed $MANAGER=16;       //kafedra mudiri
+    public mixed $TEACHER=12;       //o'qituvchi
+    public mixed $DEPARTMENT=17;       //bo'lim boshlig'i
+    public mixed $VICE_RECTOR=22;       //O‘quv ishlari bo‘yicha birinchi prorektor
+    public mixed $CHIEF_SPECIALIST=35;       //Bosh mutaxasis
+
+
     /**
      * @param PersonalService $personalService
      */
@@ -32,18 +41,32 @@ class UserSeeder extends Seeder
         $this->createFirstRoles();
         echo "Begin Creating Admin Roles" . PHP_EOL;
         echo "Creating Roles = OK" . PHP_EOL;
-        echo "Starting Migrate Hemis Employeds" . PHP_EOL;
-        $this->personal->hemisMigration('employee');
-        $this->personal->hemisMigration('teacher');
+        echo "Starting Migrate Hemis Employees" . PHP_EOL;
+        $this->personal->hemisMigration('all',$this->DEAN,10);
+        echo "Start DEan muovini";
+        $this->personal->hemisMigration('all',$this->DEAN_MUOVINI,11);
+        echo "Start bo\'lim boshlig'i";
+        $this->personal->hemisMigration('all',$this->MANAGER,12);
+        echo "Start o'qituvchi";
+        $this->personal->hemisMigration('all',$this->TEACHER,12);
+        echo "Start department";
+        $this->personal->hemisMigration('all',$this->DEPARTMENT,10);
+        echo "Start prorektor uquv ishlari";
+        $this->personal->hemisMigration('all',$this->VICE_RECTOR,10);
+        echo "Start bosh mutaxasis";
+        $this->personal->hemisMigration('all',$this->CHIEF_SPECIALIST,11);
     }
 
     public function createFirstRoles(): void
     {
         $this->createAdminUser();
-        Role::updateOrCreate(['name' => 'manager']);
-        Role::updateOrCreate(['name' => 'employee']);
-        Role::updateOrCreate(['name' => 'teacher']);
         Role::updateOrCreate(['name' => 'dean']);
+        Role::updateOrCreate(['name' => 'dean_deputy']);
+        Role::updateOrCreate(['name' => 'manager']);
+        Role::updateOrCreate(['name' => 'teacher']);
+        Role::updateOrCreate(['name' => 'department']);
+        Role::updateOrCreate(['name' => 'vice_rector']);
+        Role::updateOrCreate(['name' => 'chief_specialist']);
     }
 
     public function createAdminUser(): void
