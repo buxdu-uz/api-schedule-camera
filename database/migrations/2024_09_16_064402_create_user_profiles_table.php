@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Departments\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -24,8 +25,14 @@ return new class extends Migration
             $table->string('second_name',100)->nullable();
             $table->string('third_name',100)->nullable();
             $table->unsignedInteger('year_of_enter')->nullable();
-            $table->unsignedBigInteger('h_employee_status')->index()->nullable();
-            $table->unsignedBigInteger('h_employee_type')->index()->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'gender')->default(3494);
+            $table->foreignIdFor(ClassifierOption::class,'h_academic_degree')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_academic_rank')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_employment_form')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_employment_staff')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_staff_position')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_employee_status')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_employee_type')->nullable();
             $table->date('birth_date')->nullable();
             $table->string('contract_number')->nullable();
             $table->string('decree_number')->nullable();

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 
+use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Departments\Models\Department;
 use App\Models\User;
 use GuzzleHttp\Client;
@@ -89,8 +90,26 @@ class PersonalService
                         'second_name' => $item->second_name,
                         'third_name' => $item->third_name,
                         'year_of_enter' => $item->year_of_enter,
-                        'h_employee_status' => $item->employeeStatus->code,
-                        'h_employee_type' =>$item->employeeType->code,
+                        'gender' => ClassifierOption::getId('gender', $item->gender->code),
+                        'h_academic_degree' => ClassifierOption::getId(
+                            'academicDegree',
+                            $item->academicDegree->code
+                        ),
+                        'h_academic_rank' => ClassifierOption::getId('academicRank', $item->academicRank->code),
+                        'h_employment_form' => ClassifierOption::getId(
+                            'employmentForm',
+                            $item->employmentForm->code
+                        ),
+                        'h_employment_staff' => ClassifierOption::getId(
+                            'employmentStaff',
+                            $item->employmentStaff->code
+                        ),
+                        'h_staff_position' => ClassifierOption::getId(
+                            'teacherPositionType',
+                            $item->staffPosition->code
+                        ),
+                        'h_employee_status' => ClassifierOption::getId('employeeType', $item->employeeStatus->code),
+                        'h_employee_type' => ClassifierOption::getId('employeeType', $item->employeeType->code),
                         'birth_date' => date('Y-m-d', $item->birth_date),
                         'contract_number' => $item->contract_number,
                         'decree_number' => $item->decree_number,

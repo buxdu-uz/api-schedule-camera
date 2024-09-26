@@ -1,6 +1,5 @@
 <?php
 
-use App\Domain\Classifiers\Models\ClassifierOption;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('classifiers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
-            $table->string('code',20);
-            $table->foreignIdFor(ClassifierOption::class,'h_structure_type');
-            $table->foreignIdFor(ClassifierOption::class,'h_locality_type');
+            $table->string('classifier',50)->unique();
+            $table->unsignedInteger('version');
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('classifiers');
     }
 };

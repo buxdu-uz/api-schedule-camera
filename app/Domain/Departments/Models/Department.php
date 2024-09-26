@@ -34,7 +34,9 @@ class Department extends Model
     protected $fillable = [
         'parent_id',
         'name',
-        'code'
+        'code',
+        'h_structure_type',
+        'h_locality_type',
     ];
 
     public function parent()
