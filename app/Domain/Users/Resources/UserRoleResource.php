@@ -5,7 +5,7 @@ namespace App\Domain\Users\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TeacherResource extends JsonResource
+class UserRoleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,7 +16,10 @@ class TeacherResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'department' => $this->profile->department->name,
+            'name' => $this->name,
+            'staff_position' => $this->profile->staffPosition->name,
+            'employee_type' => $this->profile->employeeType->name,
         ];
     }
 }

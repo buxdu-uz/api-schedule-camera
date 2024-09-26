@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Users;
 use App\Domain\Cameras\Models\Camera;
 use App\Domain\Users\Repositories\UserRepository;
 use App\Domain\Users\Requests\UserFilterRequest;
-use App\Domain\Users\Resources\TeacherResource;
+use App\Domain\Users\Resources\RoleResource;
+use App\Domain\Users\Resources\UserRoleResource;
 use App\Domain\Users\Resources\UserResource;
 use App\Filters\UserFilter;
 use App\Http\Controllers\Controller;
@@ -15,6 +16,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -46,7 +48,12 @@ class UserController extends Controller
      */
     public function getAllUser()
     {
-        return $this->successResponse('',TeacherResource::collection($this->users->getAllTeacher(\request()->query('role'))));
+        return $this->successResponse('',UserRoleResource::collection($this->users->getAllUser(\request()->query('role'))));
+    }
+
+    public function getAllRoles()
+    {
+        return $this->successResponse('',RoleResource::collection(Role::query()->get()));
     }
 
     public function setUserCamera(Request $request)
@@ -55,9 +62,13 @@ class UserController extends Controller
             'users' => 'required'
         ]);
         try {
-            foreach ($request->users as $user_id => $camera){
-                $user = User::query()->find($user_id);
-                $user->cameras()->sync($camera);
+            foreach ($request->users as $role_id => $camera_ids) {
+                // Fetch users with the specified role in one query
+                $users = User::role($role_id)->get();
+                foreach ($users as $user) {
+                    // Sync cameras for each user with the role
+                    $user->cameras()->sync($camera_ids);
+                }
             }
             return $this->successResponse('Cameras were attached to the users');
         }catch (Exception $exception){

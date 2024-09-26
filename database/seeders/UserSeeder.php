@@ -42,19 +42,34 @@ class UserSeeder extends Seeder
         echo "Begin Creating Admin Roles" . PHP_EOL;
         echo "Creating Roles = OK" . PHP_EOL;
         echo "Starting Migrate Hemis Employees" . PHP_EOL;
-        $this->personal->hemisMigration('all',$this->DEAN,10);
-        echo "Start DEan muovini";
-        $this->personal->hemisMigration('all',$this->DEAN_MUOVINI,11);
-        echo "Start bo\'lim boshlig'i";
-        $this->personal->hemisMigration('all',$this->MANAGER,12);
-        echo "Start o'qituvchi";
-        $this->personal->hemisMigration('all',$this->TEACHER,12);
-        echo "Start department";
-        $this->personal->hemisMigration('all',$this->DEPARTMENT,10);
-        echo "Start prorektor uquv ishlari";
-        $this->personal->hemisMigration('all',$this->VICE_RECTOR,10);
-        echo "Start bosh mutaxasis";
-        $this->personal->hemisMigration('all',$this->CHIEF_SPECIALIST,11);
+        $this->personal->hemisMigration('all');
+
+        echo 'Start role dean';
+        $this->personal->roleUser($this->DEAN);
+        echo 'Start role dean muovini';
+        $this->personal->roleUser($this->DEAN_MUOVINI);
+        echo 'Start role dean manager';
+        $this->personal->roleUser($this->MANAGER);
+        echo 'Start role dean teacher';
+        $this->personal->roleUser($this->TEACHER);
+        echo 'Start role dean department';
+        $this->personal->roleUser($this->DEPARTMENT);
+        echo 'Start role dean vice_rector';
+        $this->personal->roleUser($this->VICE_RECTOR);
+        echo 'Start role dean chief specialist';
+        $this->personal->roleUser($this->CHIEF_SPECIALIST);
+
+//        echo "Start DEan muovini";
+//        echo "Start bo\'lim boshlig'i";
+//        $this->personal->hemisMigration('all',$this->MANAGER,12);
+//        echo "Start o'qituvchi";
+//        $this->personal->hemisMigration('all',$this->TEACHER,12);
+//        echo "Start department";
+//        $this->personal->hemisMigration('all',$this->DEPARTMENT,10);
+//        echo "Start prorektor uquv ishlari";
+//        $this->personal->hemisMigration('all',$this->VICE_RECTOR,10);
+//        echo "Start bosh mutaxasis";
+//        $this->personal->hemisMigration('all',$this->CHIEF_SPECIALIST,11);
     }
 
     public function createFirstRoles(): void

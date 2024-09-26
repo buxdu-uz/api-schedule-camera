@@ -15,6 +15,8 @@ Route::get('/buildings',[BuildingController::class,'index']);
 Route::post('/room/set/camera',[BuildingController::class,'setRoomCamera']);
 Route::post('/groups',[GroupController::class,'getAllGroup']);
 Route::get('departments', [DepartmentController::class, 'getAll']);
+Route::get('users',[UserController::class,'getAllUser']);
+Route::get('roles',[UserController::class,'getAllRoles']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::apiResource('cameras', CameraController::class);
@@ -26,7 +28,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
     Route::get('/schedule/list',[ScheduleListController::class,'getScheduleListHemis']);
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
-    Route::get('teachers',[UserController::class,'getAllUser']);
 });
 
 Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher']], function () {

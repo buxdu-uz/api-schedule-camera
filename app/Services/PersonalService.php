@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Departments\Models\Department;
 use App\Models\User;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class PersonalService
     /**
      * @throws \Throwable
      */
-    public function hemisMigration($type, $role,$employee_type): void
+    public function hemisMigration($type): void
     {
         $client = new Client();
         $headers = [
@@ -33,7 +34,7 @@ class PersonalService
         ];
         $request = new Request(
             'GET',
-            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type,
+            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit'),
             $headers
         );
         $res = $client->sendAsync($request)->wait();
@@ -43,30 +44,30 @@ class PersonalService
 //            if ($result->data->pagination->totalCount > config('hemis.limit')) {
                 for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
                     if ($i === 1) {
-                        $this->store($result,$role);
+                        $this->store($result);
                     } else {
                         $request = new Request(
                             'GET',
-                            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type . '&page=' . $i,
+                            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&page=' . $i,
                             $headers
                         );
                         $res = $client->sendAsync($request)->wait();
                         $res = $res->getBody();
                         $result = json_decode($res);
-                        $this->store($result,$role);
+                        $this->store($result);
                     }
                     echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
                 }
 //            }
         } else {
-            $this->store($result,$role);
+            $this->store($result);
         }
     }
 
     /**
      * @throws \Throwable
      */
-    public function store($result,$role): void
+    public function store($result): void
     {
         foreach (collect($result->data->items)->sortBy('id') as $item) {
             DB::beginTransaction();
@@ -122,22 +123,6 @@ class PersonalService
                         'decree_date' => date('Y-m-d', $item->decree_date),
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
-                         //Bosh mutaxasis
-                    if($role == $this->DEAN){
-                        $user->syncRoles('dean');
-                    }elseif($role == $this->DEAN_MUOVINI){
-                        $user->syncRoles('dean_deputy');
-                    }elseif($role == $this->MANAGER){
-                        $user->syncRoles('manager');
-                    }elseif($role == $this->TEACHER){
-                        $user->syncRoles('teacher');
-                    }elseif($role == $this->DEPARTMENT){
-                        $user->syncRoles('department');
-                    }elseif($role == $this->VICE_RECTOR){
-                        $user->syncRoles('vice_rector');
-                    }elseif($role == $this->CHIEF_SPECIALIST){
-                        $user->syncRoles('chief_specialist');
-                    }
                 }
                 DB::commit();
             } catch (\Exception $exception) {
@@ -165,4 +150,112 @@ class PersonalService
         }
         return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name));
     }
+
+
+    public function roleUser($role)
+    {
+        $client = new Client();
+        $headers = [
+            'Authorization' => 'Bearer ' . config('hemis.api_key'),
+            'Accept' => 'application/json',
+        ];
+        $request = new Request(
+            'GET',
+            config('hemis.host') . 'data/employee-list?type=all&limit=' . config('hemis.limit').'&_staff_position='.$role,
+            $headers
+        );
+        $res = $client->sendAsync($request)->wait();
+        $res = $res->getBody();
+        $result = json_decode($res);
+        if ($result->success === true) {
+            for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
+                if ($i === 1) {
+                    $this->setRoleUser($result,$role);
+                } else {
+                    $request = new Request(
+                        'GET',
+                        config('hemis.host') . 'data/employee-list?type=all&limit=' . config('hemis.limit').'&_staff_position='.$role. '&page=' . $i,
+                        $headers
+                    );
+                    $res = $client->sendAsync($request)->wait();
+                    $res = $res->getBody();
+                    $result = json_decode($res);
+                    $this->setRoleUser($result,$role);
+                }
+                echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
+            }
+        } else {
+            $this->setRoleUser($result,$role);
+        }
+    }
+
+    /**
+     * @param $result
+     * @param $role
+     * @return void
+     */
+    public function setRoleUser($result,$role)
+    {
+        foreach (collect($result->data->items)->sortBy('id') as $item) {
+            $user = User::query()->where('id', $item->id)
+                ->orWhere('employee_id', $item->employee_id_number)
+                ->first();
+
+            if($role == $this->DEAN){
+                $user->assignRole('dean');
+            }elseif($role == $this->DEAN_MUOVINI){
+                $user->assignRole('dean_deputy');
+            }elseif($role == $this->MANAGER){
+                $user->assignRole('manager');
+            }elseif($role == $this->TEACHER){
+                $user->assignRole('teacher');
+            }elseif($role == $this->DEPARTMENT){
+                $user->assignRole('department');
+            }elseif($role == $this->VICE_RECTOR){
+                $user->assignRole('vice_rector');
+            }elseif($role == $this->CHIEF_SPECIALIST){
+                $user->assignRole('chief_specialist');
+            }
+        }
+    }
+
+
+//    public function hemisMigration($type): void
+//    {
+//        $client = new Client();
+//        $headers = [
+//            'Authorization' => 'Bearer ' . config('hemis.api_key'),
+//            'Accept' => 'application/json',
+//        ];
+//        $request = new Request(
+//            'GET',
+//            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type,
+//            $headers
+//        );
+//        $res = $client->sendAsync($request)->wait();
+//        $res = $res->getBody();
+//        $result = json_decode($res);
+//        if ($result->success === true) {
+////            if ($result->data->pagination->totalCount > config('hemis.limit')) {
+//            for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
+//                if ($i === 1) {
+//                    $this->store($result,$role);
+//                } else {
+//                    $request = new Request(
+//                        'GET',
+//                        config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type . '&page=' . $i,
+//                        $headers
+//                    );
+//                    $res = $client->sendAsync($request)->wait();
+//                    $res = $res->getBody();
+//                    $result = json_decode($res);
+//                    $this->store($result,$role);
+//                }
+//                echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
+//            }
+////            }
+//        } else {
+//            $this->store($result,$role);
+//        }
+//    }
 }
