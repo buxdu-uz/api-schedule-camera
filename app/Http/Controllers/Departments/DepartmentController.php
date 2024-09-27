@@ -26,8 +26,13 @@ class DepartmentController extends Controller
     /**
      * @return JsonResponse
      */
+    public function getAllFakultet()
+    {
+        return $this->successResponse('',DepartmentResource::collection($this->departments->getAllFakultet()));
+    }
+
     public function getAll()
     {
-        return $this->successResponse('',DepartmentResource::collection($this->departments->getAll()));
+        return $this->successResponse('',DepartmentResource::collection($this->departments->getAll(\request()->query('parent_id', null))));
     }
 }

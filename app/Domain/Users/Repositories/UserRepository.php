@@ -33,4 +33,14 @@ class UserRepository
             ->orderBy('name')
             ->get();
     }
+
+    public function getAllDepartmentUser($department_id)
+    {
+        return User::query()
+            ->whereHas('profile',function ($query) use ($department_id) {
+                $query->where('department_id',$department_id);
+            })
+            ->orderBy('name')
+            ->get();
+    }
 }

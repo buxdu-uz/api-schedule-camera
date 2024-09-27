@@ -56,19 +56,21 @@ class UserController extends Controller
         return $this->successResponse('',RoleResource::collection(Role::query()->get()));
     }
 
+    public function getAllDepartmentUser($department_id)
+    {
+        return $this->successResponse(UserRoleResource::collection($this->users->getAllDepartmentUser($department_id)));
+    }
+
     public function setUserCamera(Request $request)
     {
         $request->validate([
             'users' => 'required'
         ]);
         try {
-            foreach ($request->users as $role_id => $camera_ids) {
+            foreach ($request->users as $user_id => $camera_ids) {
                 // Fetch users with the specified role in one query
-                $users = User::role($role_id)->get();
-                foreach ($users as $user) {
-                    // Sync cameras for each user with the role
-                    $user->cameras()->sync($camera_ids);
-                }
+                $user = User::query()->find($user_id);
+                $user->cameras()->sync($camera_ids);
             }
             return $this->successResponse('Cameras were attached to the users');
         }catch (Exception $exception){

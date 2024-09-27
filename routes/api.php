@@ -14,8 +14,10 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/buildings',[BuildingController::class,'index']);
 Route::post('/room/set/camera',[BuildingController::class,'setRoomCamera']);
 Route::post('/groups',[GroupController::class,'getAllGroup']);
-Route::get('departments', [DepartmentController::class, 'getAll']);
+Route::get('departments', [DepartmentController::class, 'getAllFakultet']);
+Route::get('departments/all', [DepartmentController::class, 'getAll']);
 Route::get('users',[UserController::class,'getAllUser']);
+Route::get('users/{department_id}',[UserController::class,'getAllDepartmentUser']);
 Route::get('roles',[UserController::class,'getAllRoles']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
