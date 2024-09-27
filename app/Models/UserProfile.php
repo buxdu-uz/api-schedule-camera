@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Departments\Models\Department;
+use App\Models\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -63,6 +64,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserProfile extends Model
 {
+    use Filterable;
+
     protected $guarded=false;
 
     public function user(): BelongsTo

@@ -16,7 +16,7 @@ class UserProfileResource extends JsonResource
     {
         return [
             'department' => $this->department->name ?? null,
-            'h_employee_type' => $this->h_employee_type
+            'employee_type' =>  $this->employeeType->name,
         ];
     }
 }

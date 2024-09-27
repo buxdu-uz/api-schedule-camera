@@ -43,7 +43,6 @@ class LoginController extends Controller
         }
 
         // Update password
-        $user->login = $request->login;
         $user->password = Hash::make($request->new_password);
         $user->update();
 

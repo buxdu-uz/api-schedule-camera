@@ -79,7 +79,8 @@ class PersonalService
                     ], [
                         'name' => $item->full_name,
                         'employee_id' => $item->employee_id_number,
-                        'login' => $this->getUniqLogin($item),
+//                        'login' => $this->getUniqLogin($item),
+                        'login' => $item->employee_id_number,
                         'password' => Str::slug(
                             substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)
                         ),
@@ -138,18 +139,18 @@ class PersonalService
         return Storage::disk('public')->put('avatars', $image);
     }
 
-    private function getUniqLogin($item): string
-    {
-        if (User::where('id', '!=', $item->id)->whereLogin(
-            Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name))
-        )->exists()) {
-            return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)) . rand(
-                    100,
-                    999
-                );
-        }
-        return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name));
-    }
+//    private function getUniqLogin($item): string
+//    {
+//        if (User::where('id', '!=', $item->id)->whereLogin(
+//            Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name))
+//        )->exists()) {
+//            return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)) . rand(
+//                    100,
+//                    999
+//                );
+//        }
+//        return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name));
+//    }
 
 
     public function roleUser($role)
