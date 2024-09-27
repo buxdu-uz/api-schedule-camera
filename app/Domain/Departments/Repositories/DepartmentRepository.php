@@ -14,6 +14,7 @@ class DepartmentRepository
     public function getAll()
     {
         return Department::query()
+            ->where('name','not like','%(nofaol)%')
             ->where('h_structure_type',4140)    //FAKULTET
             ->get()
             ->sortBy('name');
