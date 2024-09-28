@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Resources;
 
+use App\Domain\Cameras\Resources\CameraResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,7 @@ class UserRoleResource extends JsonResource
             'name' => $this->name,
             'staff_position' => $this->profile->staffPosition->name,
             'employee_type' => $this->profile->employeeType->name,
+            'cameras' => CameraResource::collection($this->cameras)
         ];
     }
 }

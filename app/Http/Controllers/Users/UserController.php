@@ -106,4 +106,16 @@ class UserController extends Controller
 
         return $this->successResponse('',CameraResource::collection($user_cameras));
     }
+
+    public function userCamerasForAdmin()
+    {
+        $cameras = User::query()
+            ->withoutRole('admin') // Exclude users with 'admin' role
+            ->whereHas('cameras', function ($query) {
+                // Ensures users have at least one camera associated
+                $query->whereNotNull('cameras.id'); // Replace 'id' with a valid column from the 'cameras' table
+            })
+            ->paginate();
+        return UserRoleResource::collection($cameras);
+    }
 }

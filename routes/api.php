@@ -25,6 +25,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::post('/camera/import', [CameraController::class, 'importExel']);
     Route::get('users', [UserController::class, 'paginate']);
     Route::post('/user/set/camera',[UserController::class,'setUserCamera']);
+    Route::get('/user/cameras',[UserController::class,'userCamerasForAdmin']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
@@ -32,8 +33,8 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
 });
 
-Route::group(['prefix' => 'users', 'middleware' => ['auth:sanctum']], function () {
-    Route::get('schedule/list',[ScheduleListController::class,'userSchedule']);
+Route::group(['prefix' => 'user', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/cameras',[UserController::class,'userCamera']);
+    Route::get('schedule/list',[ScheduleListController::class,'userSchedule']);
 });
 
