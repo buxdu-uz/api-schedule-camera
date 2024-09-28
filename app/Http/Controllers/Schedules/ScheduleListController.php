@@ -66,7 +66,7 @@ class ScheduleListController extends Controller
         return $this->successResponse('',ScheduleResource::collection($data));
     }
 
-    public function teacherSchedule(Req $request)
+    public function userSchedule(Req $request)
     {
         $data = collect();
         $current_week_start =Carbon::now()->startOfWeek()->timestamp;

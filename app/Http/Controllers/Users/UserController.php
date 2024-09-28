@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Users;
 
 use App\Domain\Cameras\Models\Camera;
+use App\Domain\Cameras\Resources\CameraResource;
 use App\Domain\Users\Repositories\UserRepository;
 use App\Domain\Users\Requests\UserFilterRequest;
 use App\Domain\Users\Resources\RoleResource;
@@ -16,6 +17,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -91,5 +93,17 @@ class UserController extends Controller
 //            return $this->errorResponse($exception->getMessage());
 //        }
 
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function userCamera(): JsonResponse
+    {
+        $user_cameras = Camera::whereHas('users', function ($query) {
+            $query->where('users.id', Auth::id());
+        })->get();
+
+        return $this->successResponse('',CameraResource::collection($user_cameras));
     }
 }

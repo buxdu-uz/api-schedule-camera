@@ -74,7 +74,10 @@ class UserSeeder extends Seeder
 
     public function createFirstRoles(): void
     {
-        $this->createAdminUser();
+//        $this->createAdminUser();
+        $role = Role::updateOrCreate(['name' => 'admin']);
+        $permission = Permission::create(['name' => 'all']);
+        $role->givePermissionTo($permission);
         Role::updateOrCreate(['name' => 'dean']);
         Role::updateOrCreate(['name' => 'dean_deputy']);
         Role::updateOrCreate(['name' => 'manager']);
@@ -82,19 +85,28 @@ class UserSeeder extends Seeder
         Role::updateOrCreate(['name' => 'department']);
         Role::updateOrCreate(['name' => 'vice_rector']);
         Role::updateOrCreate(['name' => 'chief_specialist']);
-    }
 
-    public function createAdminUser(): void
-    {
-        $role = Role::updateOrCreate(['name' => 'admin']);
-        $permission = Permission::create(['name' => 'all']);
-        $role->givePermissionTo($permission);
+
         $admin = User::create([
             'name' => 'Administarator',
             'login' => 'admin',
             'employee_id' => '10000001',
             'password' => 'admin',
         ]);
-        $admin->syncRoles($role->name);
+        $admin->syncRoles(['admin','dean','dean_deputy','manager','teacher','department','vice_rector','chief_specialist']);
     }
+
+//    public function createAdminUser(): void
+//    {
+//        $role = Role::updateOrCreate(['name' => 'admin']);
+//        $permission = Permission::create(['name' => 'all']);
+//        $role->givePermissionTo($permission);
+//        $admin = User::create([
+//            'name' => 'Administarator',
+//            'login' => 'admin',
+//            'employee_id' => '10000001',
+//            'password' => 'admin',
+//        ]);
+//        $admin->syncRoles($role->name);
+//    }
 }

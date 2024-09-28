@@ -32,7 +32,8 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
 });
 
-Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher']], function () {
-    Route::get('schedule/list',[ScheduleListController::class,'teacherSchedule']);
+Route::group(['prefix' => 'users', 'middleware' => ['auth:sanctum']], function () {
+    Route::get('schedule/list',[ScheduleListController::class,'userSchedule']);
+    Route::get('/cameras',[UserController::class,'userCamera']);
 });
 
