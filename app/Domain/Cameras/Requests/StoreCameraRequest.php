@@ -25,6 +25,8 @@ class StoreCameraRequest extends FormRequest
             'cameras' => 'required|array',
             'cameras.*.name' => 'required|string|max:255',
             'cameras.*.link' => 'required',
+            'cameras.*.room_id' => 'required',
+            'cameras.*.favourite' => 'sometimes|boolean',
         ];
     }
 }

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Buildings;
 use App\Domain\Buildings\Repositories\BuildingRepository;
 use App\Domain\Buildings\Resources\BuildingResource;
 use App\Domain\Rooms\Models\Room;
+use App\Exports\BuildingRoomExport;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BuildingController extends Controller
 {
@@ -52,5 +54,10 @@ class BuildingController extends Controller
         } catch (Exception $exception) {
             return $this->errorResponse($exception->getMessage());
         }
+    }
+
+    public function exportBuilding()
+    {
+        return Excel::download(new BuildingRoomExport, 'buildings_rooms.xlsx');
     }
 }

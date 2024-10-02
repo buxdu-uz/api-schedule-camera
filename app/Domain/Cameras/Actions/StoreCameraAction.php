@@ -4,6 +4,7 @@ namespace App\Domain\Cameras\Actions;
 
 use App\Domain\Cameras\DTO\StoreCameraDTO;
 use App\Domain\Cameras\Models\Camera;
+use App\Domain\Rooms\Models\Room;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -23,8 +24,10 @@ class StoreCameraAction
                 $camera = new Camera();
                 $camera->name = $cam['name'];
                 $camera->link = $cam['link'];
+                $camera->favourite = $cam['favourite'];
                 $camera->save();
-//                $camera->syncRoles('camera');
+                $room = Room::query()->find($cam['room_id']);
+                $room->cameras()->sync($camera->id);
                 $data[] = $camera;
             }
         } catch (Exception $exception) {

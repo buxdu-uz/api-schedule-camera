@@ -18,6 +18,7 @@ class CameraResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'link' => $this->link,
+            'favourite' => $this->favourite,
         ];
     }
 }

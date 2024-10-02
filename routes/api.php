@@ -26,6 +26,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::get('users', [UserController::class, 'paginate']);
     Route::post('/user/set/camera',[UserController::class,'setUserCamera']);
     Route::get('/user/cameras',[UserController::class,'userCamerasForAdmin']);
+    Route::get('/export/buildings/rooms', [BuildingController::class, 'exportBuilding']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {

@@ -22,9 +22,11 @@ class UpdateCameraRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'room_id' => 'required',
             'name' => 'required|string|max:255',
             'link' => 'required',
-            'camera' => 'sometimes|json'
+            'camera' => 'sometimes|json',
+            'favourite' => 'sometimes|boolean',
         ];
     }
 }
