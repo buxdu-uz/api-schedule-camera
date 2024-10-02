@@ -39,7 +39,7 @@ class BuildingRoomExport implements FromCollection, WithHeadings,WithMapping, Wi
     public function headings(): array
     {
         return [
-            ['Bino ID', 'Bino nomi', 'Xona ID', 'Xona nomi']
+            ['building_id', 'building_name', 'room_id', 'room_name']
         ];
     }
 
