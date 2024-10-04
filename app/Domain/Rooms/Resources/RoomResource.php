@@ -2,6 +2,7 @@
 
 namespace App\Domain\Rooms\Resources;
 
+use App\Domain\Cameras\Resources\CameraResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,6 +19,7 @@ class RoomResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'name' => $this->name,
+            'cameras' => CameraResource::collection($this->cameras()->where('room_id',$this->id)->where('favourite', true)->get())
         ];
     }
 }
