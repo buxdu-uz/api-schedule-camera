@@ -6,6 +6,7 @@ use App\Http\Controllers\Cameras\CameraController;
 use App\Http\Controllers\Departments\DepartmentController;
 use App\Http\Controllers\Groups\GroupController;
 use App\Http\Controllers\Schedules\ScheduleListController;
+use App\Http\Controllers\SubjectGroups\SubjectGroupController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
     Route::get('/schedule/list',[ScheduleListController::class,'getScheduleListHemis']);
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
+
+    //Subject group
+    Route::get('subject_groups',[SubjectGroupController::class,'index']);
+    Route::post('subject_groups',[SubjectGroupController::class,'store']);
 });
 
 Route::group(['prefix' => 'user', 'middleware' => ['auth:sanctum']], function () {

@@ -52,7 +52,6 @@ class ClassifierOption extends Model
     {
         $key=strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
         $key='h_'.$key;
-        dd($key,$code);
         try {
             return ClassifierOption::whereHas('classifier', function ($query) use ($key) {
                 $query->where('classifier', $key);

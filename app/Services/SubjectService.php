@@ -62,7 +62,6 @@ class SubjectService
     public function store($result): void
     {
         foreach (collect($result->data->items)->sortBy('id') as $item) {
-            dd(ClassifierOption::getId('subject_block', $item->subjectGroup->code),$item->subjectGroup->code);
             DB::beginTransaction();
             try {
                 // Check if the building exists or needs to be updated
@@ -73,7 +72,7 @@ class SubjectService
                     'name' => $item->name,
                     'active' => $item->active,
                     'h_subject_block' => ClassifierOption::getId('subject_block', $item->subjectGroup->code),
-                    'h_education_type' => ClassifierOption::getId('h_education_type', $item->educationType->code),
+                    'h_education_type' => ClassifierOption::getId('education_type', $item->educationType->code),
                 ]);
                 DB::commit();
             } catch (\Exception $exception) {

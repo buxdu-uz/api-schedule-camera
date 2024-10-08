@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string("code");
             $table->text('name');
             $table->boolean('active');
-            $table->foreignIdFor(ClassifierOption::class,'h_subject_block');
-            $table->foreignIdFor(ClassifierOption::class,'h_education_type');
+            $table->foreignIdFor(ClassifierOption::class,'h_subject_block')->nullable();
+            $table->foreignIdFor(ClassifierOption::class,'h_education_type')->nullable();
             $table->timestamps();
         });
     }
