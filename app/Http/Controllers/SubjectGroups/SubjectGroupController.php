@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\SubjectGroups;
 
+use App\Domain\Classifiers\Models\ClassifierOption;
+use App\Domain\EducationYears\Resources\EducationYearResource;
 use App\Domain\SubjectGroups\Actions\StoreSubjectGroupAction;
 use App\Domain\SubjectGroups\DTO\StoreSubjectGroupDTO;
 use App\Domain\SubjectGroups\Repositories\SubjectGroupRepository;
@@ -26,6 +28,19 @@ class SubjectGroupController extends Controller
     public function __construct(SubjectGroupRepository $subjectGroupRepository)
     {
         $this->subject_groups = $subjectGroupRepository;
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function educationYears()
+    {
+        return $this->successResponse('',EducationYearResource::collection(ClassifierOption::query()
+            ->where('classifier_id',56)
+            ->where('code', '>=', date('Y'))
+            ->get()
+            ->sortBy('name'))
+        );
     }
 
     /**

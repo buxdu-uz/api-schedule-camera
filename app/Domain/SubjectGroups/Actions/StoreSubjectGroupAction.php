@@ -28,6 +28,8 @@ class StoreSubjectGroupAction
                 $subject_group->flow = FlowOrSplitGroup::from($data['flow']);
                 $subject_group->split_group = FlowOrSplitGroup::from($data['split_group']);
                 $subject_group->lesson_hour = $data['lesson_hour'];
+                $subject_group->h_education_year = $data['education_year'];
+                $subject_group->semester = $data['semester'];
                 $subject_group->save();
             }
         } catch (Exception $exception) {

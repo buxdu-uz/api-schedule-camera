@@ -29,6 +29,8 @@ class SubjectGroupResource extends JsonResource
             'flow' => $this->getFlow(),
             'split_group' => $this->getSplitGroup(),
             'lesson_hour' => $this->lesson_hour,
+            'education_year' => $this->educationYear->name,
+            'semester' => $this->semester,
             'created-at' => $this->created_at
         ];
     }

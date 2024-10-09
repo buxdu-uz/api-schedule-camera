@@ -20,6 +20,7 @@ Route::get('departments/all', [DepartmentController::class, 'getAll']);
 Route::get('users',[UserController::class,'getAllUser']);
 Route::get('users/{department_id}',[UserController::class,'getAllDepartmentUser']);
 Route::get('roles',[UserController::class,'getAllRoles']);
+Route::get('education_years',[SubjectGroupController::class,'educationYears']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::apiResource('cameras', CameraController::class);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Subjects\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -27,6 +28,8 @@ return new class extends Migration
             $table->enum('flow',['yes','no'])->comment('dars oqimi');
             $table->enum('split_group',['yes','no'])->comment('guruh bo\'linishi');
             $table->integer('lesson_hour')->comment('dars soati');
+            $table->foreignIdFor(ClassifierOption::class,'h_employee_year');
+            $table->integer('semester');
             $table->timestamps();
         });
     }
