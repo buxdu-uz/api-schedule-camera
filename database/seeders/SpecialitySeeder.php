@@ -60,7 +60,7 @@ class SpecialitySeeder extends Seeder
                 ], [
                     'code' => $item->code,
                     'name' => $item->name,
-                    'department_id' => $item->department->id,
+                    'department_id' => $item->department->id ?? null,
                     'h_locality_type' => ClassifierOption::getId('localityType', $item->localityType->code),
                     'h_education_type' => ClassifierOption::getId('educationType', $item->educationType->code),
                     'bachelor_specialty' => $item->bachelorSpecialty != null ? $item->bachelorSpecialty->code : null,
