@@ -3,6 +3,7 @@
 namespace App\Domain\Rooms\Models;
 
 use App\Domain\Cameras\Models\Camera;
+use App\Domain\Floors\Models\Floor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,4 +37,9 @@ class Room extends Model
     {
         return $this->belongsToMany(Camera::class,'room_camera','room_id','camera_id');
     }
+    public function floor(): BelongsTo
+    {
+        return $this->belongsTo(Floor::class);
+    }
+
 }

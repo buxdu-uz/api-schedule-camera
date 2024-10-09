@@ -19,6 +19,7 @@ class RoomResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'name' => $this->name,
+            'floor' => $this->floor->name,
             'cameras' => CameraResource::collection($this->cameras()->where('room_id',$this->id)->where('favourite', true)->get())
         ];
     }
