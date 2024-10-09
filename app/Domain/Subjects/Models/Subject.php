@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subject extends Model
 {
+    protected $perPage = 20;
+
     protected $fillable = [
         'code',
         'name',

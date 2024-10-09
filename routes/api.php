@@ -7,6 +7,7 @@ use App\Http\Controllers\Departments\DepartmentController;
 use App\Http\Controllers\Groups\GroupController;
 use App\Http\Controllers\Schedules\ScheduleListController;
 use App\Http\Controllers\SubjectGroups\SubjectGroupController;
+use App\Http\Controllers\Subjects\SubjectController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,13 +15,15 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/buildings',[BuildingController::class,'index']);
 Route::post('/room/set/camera',[BuildingController::class,'setRoomCamera']);
-Route::post('/groups',[GroupController::class,'getAllGroup']);
+Route::post('/groups',[GroupController::class,'index']);
 Route::get('departments', [DepartmentController::class, 'getAllFakultet']);
 Route::get('departments/all', [DepartmentController::class, 'getAll']);
 Route::get('users',[UserController::class,'getAllUser']);
 Route::get('users/{department_id}',[UserController::class,'getAllDepartmentUser']);
 Route::get('roles',[UserController::class,'getAllRoles']);
+
 Route::get('education_years',[SubjectGroupController::class,'educationYears']);
+Route::get('/subjects',[SubjectController::class,'getAll']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::apiResource('cameras', CameraController::class);
@@ -29,6 +32,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::post('/user/set/camera',[UserController::class,'setUserCamera']);
     Route::get('/user/cameras',[UserController::class,'userCamerasForAdmin']);
     Route::get('/export/buildings/rooms', [BuildingController::class, 'exportBuilding']);
+    Route::get('/subjects',[SubjectController::class,'paginate']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
