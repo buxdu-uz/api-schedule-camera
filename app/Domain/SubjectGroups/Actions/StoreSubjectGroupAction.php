@@ -31,6 +31,7 @@ class StoreSubjectGroupAction
                 $subject_group->h_education_year = $data['education_year'];
                 $subject_group->semester = $data['semester'];
                 $subject_group->save();
+                $subject_group->groups()->attach($data['groups']);
             }
         } catch (Exception $exception) {
             DB::rollBack();

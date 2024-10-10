@@ -28,7 +28,7 @@ return new class extends Migration
             $table->enum('flow',['yes','no'])->comment('dars oqimi');
             $table->enum('split_group',['yes','no'])->comment('guruh bo\'linishi');
             $table->integer('lesson_hour')->comment('dars soati');
-            $table->foreignIdFor(ClassifierOption::class,'h_employee_year');
+            $table->foreignIdFor(ClassifierOption::class,'h_education_year');
             $table->integer('semester');
             $table->timestamps();
         });
