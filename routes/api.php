@@ -4,10 +4,12 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Buildings\BuildingController;
 use App\Http\Controllers\Cameras\CameraController;
 use App\Http\Controllers\Departments\DepartmentController;
+use App\Http\Controllers\Generations\GenerationController;
 use App\Http\Controllers\Groups\GroupController;
 use App\Http\Controllers\Schedules\ScheduleListController;
 use App\Http\Controllers\SubjectGroups\SubjectGroupController;
 use App\Http\Controllers\Subjects\SubjectController;
+use App\Http\Controllers\Syllabus\SyllabusController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +27,11 @@ Route::get('roles',[UserController::class,'getAllRoles']);
 Route::get('education_years',[SubjectGroupController::class,'educationYears']);
 Route::get('/subjects',[SubjectController::class,'getAll']);
 
+//generation
+Route::get('syllabus',[SyllabusController::class,'latest']);
+Route::get('generation/week',[GenerationController::class,'getWeeks']);
+//generation
+
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::apiResource('cameras', CameraController::class);
     Route::post('/camera/import', [CameraController::class, 'importExel']);
@@ -33,6 +40,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::get('/user/cameras',[UserController::class,'userCamerasForAdmin']);
     Route::get('/export/buildings/rooms', [BuildingController::class, 'exportBuilding']);
     Route::get('/subjects',[SubjectController::class,'paginate']);
+    Route::post('syllabus',[SyllabusController::class,'store']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
