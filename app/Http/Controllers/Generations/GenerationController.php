@@ -11,23 +11,23 @@ class GenerationController extends Controller
 {
     public function getWeeks()
     {
-        // Get the current date or specify a starting date
-        $startDate = Carbon::parse(Syllabus::query()->latest()->first()->start_date);
-        $endDate = Carbon::parse(Syllabus::query()->latest()->first()->end_date);
+        $syllabus = Syllabus::query()->latest()->first();
+        $start_date = Carbon::parse($syllabus->start_date);
+        $end_date = Carbon::parse($syllabus->end_date);
+        $daysDifference = $start_date->diffInWeeks($end_date);
+
         $weeksData = [];
 
-        // Loop through the next 15 weeks
-        for ($i = 0; $i < 15; $i++) {
-            $startOfWeek = $startDate->copy()->addWeeks($i)->startOfWeek(); // Get the start of the week
-            $endOfWeek = $endDate->endOfWeek(); // Get the end of the week
+        for ($i = 0; $i <= $daysDifference; $i++) {
+            $startOfWeek = $start_date->copy()->addWeeks($i)->startOfWeek(); // Get the start of the week
+            $endOfWeek = $startOfWeek->copy()->endOfWeek(); // Get the end of the week
 
             $weeksData[] = [
-                'start' => $startOfWeek->toDateString(), // Format to date string (YYYY-MM-DD)
-                'end' => $endOfWeek->toDateString(), // Format to date string (YYYY-MM-DD)
+                'start' => $startOfWeek->toDateString(),
+                'end' => $endOfWeek->toDateString(),
             ];
         }
 
-        // Output the weeks data
         return $weeksData;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Rooms\Models\Room;
+use App\Domain\SubjectGroups\Models\SubjectGroup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,6 +15,13 @@ return new class extends Migration
     {
         Schema::create('generation_schedules', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(SubjectGroup::class)
+                ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignIdFor(Room::class)
+                ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->date('date');
+            $table->time('start_at');
+            $table->time('end_at');
             $table->timestamps();
         });
     }
