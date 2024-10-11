@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
     //Subject group
     Route::get('subject_groups',[SubjectGroupController::class,'index']);
     Route::post('subject_groups',[SubjectGroupController::class,'store']);
+    Route::get('own/subject_group', [SubjectGroupController::class,'getOwnSubjectGroup']);
 });
 
 Route::group(['prefix' => 'user', 'middleware' => ['auth:sanctum']], function () {

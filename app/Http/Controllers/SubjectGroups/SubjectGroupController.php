@@ -9,6 +9,7 @@ use App\Domain\SubjectGroups\DTO\StoreSubjectGroupDTO;
 use App\Domain\SubjectGroups\Repositories\SubjectGroupRepository;
 use App\Domain\SubjectGroups\Requests\StoreSubjectGroupRequest;
 use App\Domain\SubjectGroups\Resources\SubjectGroupResource;
+use App\Domain\SubjectGroups\Resources\TeacherSubjectGroupResource;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +50,11 @@ class SubjectGroupController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return SubjectGroupResource::collection($this->subject_groups->paginate());
+    }
+
+    public function getOwnSubjectGroup(): JsonResponse
+    {
+        return response()->json( $this->subject_groups->getOwnSubjectGroup());
     }
 
     /**
