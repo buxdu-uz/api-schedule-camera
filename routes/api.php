@@ -47,7 +47,7 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
     Route::get('user/cameras',[UserController::class,'userCamera']);
 });
 
-Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher']], function () {
+Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher|admin']], function () {
     Route::get('/subjects',[SubjectController::class,'getAll']);
     Route::get('syllabus',[SyllabusController::class,'latest']);
     Route::get('schedule/list',[ScheduleListController::class,'userSchedule']);
