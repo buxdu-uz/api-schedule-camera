@@ -18,6 +18,7 @@ Route::post('/login', [LoginController::class, 'login']);
 
 //generation
 Route::get('generation/week',[GenerationController::class,'getWeeks']);
+Route::post('generation/schedule',[GenerationController::class,'generateSchedules']);
 //generation
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {

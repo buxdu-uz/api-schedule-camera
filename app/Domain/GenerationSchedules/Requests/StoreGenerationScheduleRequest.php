@@ -37,7 +37,7 @@ class StoreGenerationScheduleRequest extends FormRequest
                 'after_or_equal:' . $start_date,
                 'before_or_equal:' . $end_date,
             ],
-            'data.*.room_id' => ['required', 'exists:generation_schedules,room_id'],
+            'data.*.room_id' => ['required', 'exists:rooms,id'],
             'data.*.start_at' => ['required', 'date_format:H:i'],
             'data.*.end_at' => ['required', 'date_format:H:i', 'after:data.*.start_at'],
             'data.*.pair' => ['required', 'integer'],
