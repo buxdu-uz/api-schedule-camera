@@ -73,11 +73,6 @@ class UserProfile extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function staff(): BelongsTo
-    {
-        return $this->BelongsTo(ClassifierOption::class,'h_staff_position','id');
-    }
-
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
@@ -85,6 +80,11 @@ class UserProfile extends Model
     public function user_gender(): BelongsTo
     {
         return $this->belongsTo(ClassifierOption::class,'gender','id');
+    }
+
+    public function staffPosition(): BelongsTo
+    {
+        return $this->BelongsTo(ClassifierOption::class,'h_staff_position','id');
     }
 
     public function academicDegree(): BelongsTo
@@ -102,10 +102,6 @@ class UserProfile extends Model
     public function employmentStaff(): BelongsTo
     {
         return $this->belongsTo(ClassifierOption::class,'h_employment_staff','id');
-    }
-    public function staffPosition(): BelongsTo
-    {
-        return $this->belongsTo(ClassifierOption::class,'h_staff_position','id');
     }
     public function employeeStatus(): BelongsTo
     {

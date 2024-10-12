@@ -17,10 +17,10 @@ class UserRoleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'department' => $this->profile->department->name,
+            'department' => $this->profile->department->name ?? null,
             'name' => $this->name,
-            'staff_position' => $this->profile->staffPosition->name,
-            'employee_type' => $this->profile->employeeType->name,
+            'staff_position' => $this->profile->staffPosition->name ?? null,
+            'employee_type' => $this->profile->employeeType->name ?? null,
             'cameras' => CameraResource::collection($this->cameras)
         ];
     }

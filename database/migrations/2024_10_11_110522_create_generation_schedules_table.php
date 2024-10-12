@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Buildings\Models\Building;
 use App\Domain\Rooms\Models\Room;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
 use Illuminate\Database\Migrations\Migration;
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('start_at');
             $table->time('end_at');
+            $table->integer('pair');
             $table->timestamps();
         });
     }
