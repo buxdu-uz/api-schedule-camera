@@ -16,6 +16,12 @@ return new class extends Migration
     {
         Schema::create('generation_schedules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('teacher_id')
+                ->index()
+                ->comment('biriktirgan o\'qituvchi')
+                ->constrained('users') // Explicitly specify the table name here
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->foreignIdFor(SubjectGroup::class)
                 ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignIdFor(Room::class)

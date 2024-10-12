@@ -14,6 +14,7 @@ class GenerationSchedule extends Model
      * @var string[]
      */
     protected $fillable = [
+        'teacher_id',
         'subject_group_id',
         'room_id',
         'date',
