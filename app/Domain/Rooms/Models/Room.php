@@ -2,6 +2,7 @@
 
 namespace App\Domain\Rooms\Models;
 
+use App\Domain\Buildings\Models\Building;
 use App\Domain\Cameras\Models\Camera;
 use App\Domain\Floors\Models\Floor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,5 +42,8 @@ class Room extends Model
     {
         return $this->belongsTo(Floor::class);
     }
-
+    public function building(): BelongsTo
+    {
+        return $this->belongsTo(Building::class);
+    }
 }

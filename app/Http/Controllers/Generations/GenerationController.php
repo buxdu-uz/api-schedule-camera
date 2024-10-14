@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Generations;
 
 use App\Domain\GenerationSchedules\Models\GenerationSchedule;
 use App\Domain\GenerationSchedules\Requests\StoreGenerationScheduleRequest;
+use App\Domain\GenerationSchedules\Resources\GenerationScheduleGroupedResource;
+use App\Domain\GenerationSchedules\Resources\GenerationScheduleResource;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Domain\Syllabus\Models\Syllabus;
 use App\Http\Controllers\Controller;
@@ -34,6 +36,16 @@ class GenerationController extends Controller
         }
 
         return $weeksData;
+    }
+
+    public function getScheduleGroupBy()
+    {
+        $schedules = GenerationSchedule::query()
+            ->where('teacher_id',Auth::id())
+            ->get()
+            ->groupBy('date');
+
+        return $this->successResponse('', GenerationScheduleGroupedResource::collection($schedules));
     }
 
     public function generateSchedules(StoreGenerationScheduleRequest $request)

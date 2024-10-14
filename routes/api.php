@@ -45,6 +45,7 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
 
     //generation
     Route::get('generation/week',[GenerationController::class,'getWeeks']);
+    Route::get('own/schedules',[GenerationController::class,'getScheduleGroupBy']);
     Route::post('generation/schedule',[GenerationController::class,'generateSchedules']);
 //generation
 });
