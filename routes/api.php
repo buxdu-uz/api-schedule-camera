@@ -16,11 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login']);
 
-//generation
-Route::get('generation/week',[GenerationController::class,'getWeeks']);
-Route::post('generation/schedule',[GenerationController::class,'generateSchedules']);
-//generation
-
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::post('/room/set/camera',[BuildingController::class,'setRoomCamera']);
     Route::get('roles',[UserController::class,'getAllRoles']);
@@ -46,6 +41,12 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
     Route::get('users/{department_id}',[UserController::class,'getAllDepartmentUser']);
     Route::get('buildings',[BuildingController::class,'index']);
     Route::get('user/cameras',[UserController::class,'userCamera']);
+
+
+    //generation
+    Route::get('generation/week',[GenerationController::class,'getWeeks']);
+    Route::post('generation/schedule',[GenerationController::class,'generateSchedules']);
+//generation
 });
 
 Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher|admin']], function () {
