@@ -45,7 +45,7 @@ class StoreGenerationScheduleRequest extends FormRequest
             'data.*' => [
                 function ($attribute, $value, $fail) {
 
-                    $subject_group_id = data_get($value, 'subject_group_id');
+//                    $subject_group_id = data_get($value, 'subject_group_id');
                     $room_id = data_get($value, 'room_id');
                     $date = data_get($value, 'date');
                     $start_at = data_get($value, 'start_at');
@@ -58,7 +58,7 @@ class StoreGenerationScheduleRequest extends FormRequest
 
                     // Check for unique combination
                     $exists = GenerationSchedule::query()
-                        ->where('subject_group_id', $subject_group_id)
+//                        ->where('subject_group_id', $subject_group_id)
                         ->where('room_id', $room_id)
                         ->where('date', $date)
                         ->where('start_at', $start_at_full)
