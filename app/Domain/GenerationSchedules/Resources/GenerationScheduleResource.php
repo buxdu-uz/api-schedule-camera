@@ -2,6 +2,7 @@
 
 namespace App\Domain\GenerationSchedules\Resources;
 
+use App\Domain\Groups\Resources\GroupResource;
 use App\Domain\Rooms\Models\Room;
 use App\Domain\Rooms\Resources\RoomResource;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
@@ -22,14 +23,9 @@ class GenerationScheduleResource extends JsonResource
             'id' => $this->id,
             'teacher' => $this->teacher->name,
             'subject' => $this->subjectGroup->subject->name,
-            'building' => $this->room->building->name,
-            'floor' => $this->room->floor->name ?? null,
-            'room' => $this->room->name,
             'date' => $this->date,
-            'start_at' => $this->start_at,
-            'end_at' => $this->end_at,
             'pair' => $this->pair,
-            // Add more fields as needed
+            'groups' => GroupResource::collection($this->subjectGroup->groups),
         ];
     }
 }

@@ -24,11 +24,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->foreignIdFor(SubjectGroup::class)
                 ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignIdFor(Room::class)
-                ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->date('date');
-            $table->time('start_at');
-            $table->time('end_at');
             $table->integer('pair');
             $table->timestamps();
         });

@@ -17,10 +17,10 @@ class GenerationSchedule extends Model
     protected $fillable = [
         'teacher_id',
         'subject_group_id',
-        'room_id',
+//        'room_id',
         'date',
-        'start_at',
-        'end_at',
+//        'start_at',
+//        'end_at',
         'pair',
     ];
 
@@ -37,11 +37,11 @@ class GenerationSchedule extends Model
         return $this->belongsTo(User::class,'teacher_id','id');
     }
 
-    /**
-     * @return BelongsTo
-     */
-    public function room(): BelongsTo
-    {
-        return $this->belongsTo(Room::class);
-    }
+//    /**
+//     * @return BelongsTo
+//     */
+//    public function room(): BelongsTo
+//    {
+//        return $this->belongsTo(Room::class);
+//    }
 }

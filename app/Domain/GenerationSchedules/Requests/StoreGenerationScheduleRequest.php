@@ -38,35 +38,19 @@ class StoreGenerationScheduleRequest extends FormRequest
                 'after_or_equal:' . $start_date,
                 'before_or_equal:' . $end_date,
             ],
-            'data.*.room_id' => ['required', 'exists:rooms,id'],
-            'data.*.start_at' => ['required', 'date_format:H:i'],
-            'data.*.end_at' => ['required', 'date_format:H:i', 'after:data.*.start_at'],
             'data.*.pair' => ['required', 'integer'],
             'data.*' => [
                 function ($attribute, $value, $fail) {
-
-//                    $subject_group_id = data_get($value, 'subject_group_id');
-                    $room_id = data_get($value, 'room_id');
                     $date = data_get($value, 'date');
-                    $start_at = data_get($value, 'start_at');
-                    $end_at = data_get($value, 'end_at');
                     $pair = data_get($value, 'pair');
-
-                    // Adjust for proper time format
-                    $start_at_full = $start_at . ':00';
-                    $end_at_full = $end_at . ':00';
 
                     // Check for unique combination
                     $exists = GenerationSchedule::query()
-//                        ->where('subject_group_id', $subject_group_id)
-                        ->where('room_id', $room_id)
                         ->where('date', $date)
-                        ->where('start_at', $start_at_full)
-                        ->where('end_at', $end_at_full)
                         ->where('pair', $pair)
                         ->exists();
                     if ($exists) {
-                        $fail("The combination of room, start time, end time, and pair already exists for room ID {$room_id}.");
+                        $fail("The combination of date and pair already exists for date {$date}.");
                     }
                 }
             ],
