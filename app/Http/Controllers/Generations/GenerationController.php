@@ -96,10 +96,13 @@ class GenerationController extends Controller
 
                             // Store the inserted date
                             $datesForTargetDay[$date->toDateString()][] = $weekTargetDay->toDateString();
+                        }else{
+                            return $this->errorResponse('Siz ushbu fanni faqat 1 haftaga faqat '. $countSubject. ' marta qoyishingiz mumkin.');
                         }
                     }
                 }
             }
+//            dd($datesForTargetDay);
             return $this->successResponse('Sizning fanlaringiz '.$request->data[0]['pair'].' - semester uchun biriktirildi');
         }catch (Exception $exception){
             return $this->errorResponse($exception->getMessage());
