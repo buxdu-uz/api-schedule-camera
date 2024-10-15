@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Generations;
 use App\Domain\GenerationSchedules\Actions\StoreGenerationScheduleAction;
 use App\Domain\GenerationSchedules\DTO\StoreGenerationScheduleDTO;
 use App\Domain\GenerationSchedules\Models\GenerationSchedule;
+use App\Domain\GenerationSchedules\Requests\GenerationScheduleFilterRequest;
 use App\Domain\GenerationSchedules\Requests\StoreGenerationScheduleRequest;
 use App\Domain\GenerationSchedules\Resources\GenerationScheduleGroupedResource;
 use App\Domain\GenerationSchedules\Resources\GenerationScheduleResource;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Domain\Syllabus\Models\Syllabus;
+use App\Filters\GenerationScheduleFilter;
 use App\Http\Controllers\Controller;
 use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,9 +44,39 @@ class GenerationController extends Controller
         return $weeksData;
     }
 
-    public function getScheduleGroupBy()
+    public function getAllScheduleGroupByDate(GenerationScheduleFilterRequest $request)
     {
+        $filter = app()->make(GenerationScheduleFilter::class, ['queryParams' => array_filter($request->validated())]);
         $schedules = GenerationSchedule::query()
+            ->Filter($filter)
+            ->where('teacher_id', Auth::id())
+            ->orderBy('date')
+            ->get()
+            ->groupBy(function ($schedule) {
+                return Carbon::parse($schedule->date)->startOfWeek()->format('Y-m-d');
+            });
+
+        // Set the current page and items per page (1 week per page)
+        $currentPage = request()->get('page', 1);
+        $perPage = 1;
+
+        // Paginate the grouped schedules
+        $paginatedSchedules = new LengthAwarePaginator(
+            $schedules->forPage($currentPage, $perPage),
+            $schedules->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return GenerationScheduleGroupedResource::collection($paginatedSchedules);
+    }
+
+    public function getScheduleGroupBy(GenerationScheduleFilterRequest $request)
+    {
+        $filter = app()->make(GenerationScheduleFilter::class, ['queryParams' => array_filter($request->validated())]);
+        $schedules = GenerationSchedule::query()
+            ->Filter($filter)
             ->where('teacher_id',Auth::id())
             ->get()
             ->groupBy('date');
