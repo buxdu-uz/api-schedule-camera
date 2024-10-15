@@ -7,6 +7,7 @@ use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Domain\Syllabus\Models\Syllabus;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class StoreGenerationScheduleRequest extends FormRequest
@@ -34,7 +35,7 @@ class StoreGenerationScheduleRequest extends FormRequest
             'data' => ['required', 'array'],
             'data.*.subject_group_id' => [
                 'required',
-                'exists:subject_groups,id'
+                'exists:subject_groups,id',
             ],
             'data.*.date' => [
                 'required',
@@ -46,13 +47,36 @@ class StoreGenerationScheduleRequest extends FormRequest
             'data.*' => [
                 function ($attribute, $value, $fail) {
                     $date = data_get($value, 'date');
-                    $pair = data_get($value, 'pair');
+                    $subjectGroupId = data_get($value, 'subject_group_id');
 
-                    // Check for unique combination
+                    // Count existing lectures for the given subject group and date
+                    $lectureCount = GenerationSchedule::query()
+                        ->whereHas('subjectGroup', function ($query) {
+                            $query->where('lesson', '=', 'lecture');
+                        })
+                        ->where('date', $date)
+                        ->where('subject_group_id', $subjectGroupId)
+                        ->count();
+
+                    // Include current data array row in the check
+                    $lectureInputCount = collect(request('data'))
+                        ->where('subject_group_id', $subjectGroupId)
+                        ->where('date', $date)
+                        ->count();
+
+                    // If lectures exceed one for the given subject group and date, fail validation
+                    if (($lectureCount + $lectureInputCount) > 1) {
+                        $fail("Only one 'lecture' lesson can be scheduled per day for subject group ID {$subjectGroupId}.");
+                        return;
+                    }
+
+                    // General uniqueness check for date and pair
+                    $pair = data_get($value, 'pair');
                     $exists = GenerationSchedule::query()
                         ->where('date', $date)
                         ->where('pair', $pair)
                         ->exists();
+
                     if ($exists) {
                         $fail("The combination of date and pair already exists for date {$date}.");
                     }
