@@ -103,7 +103,7 @@ class GenerationController extends Controller
                 }
             }
 //            dd($datesForTargetDay);
-            return $this->successResponse('Sizning fanlaringiz '.$request->data[0]['pair'].' - semester uchun biriktirildi');
+            return $this->successResponse('Sizning fanlaringiz '.$request->data[0]['pair'].' - semester uchun biriktirildi',$datesForTargetDay);
         }catch (Exception $exception){
             return $this->errorResponse($exception->getMessage());
         }
