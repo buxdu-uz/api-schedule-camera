@@ -3,6 +3,7 @@
 namespace App\Domain\GenerationSchedules\Requests;
 
 use App\Domain\GenerationSchedules\Models\GenerationSchedule;
+use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Domain\Syllabus\Models\Syllabus;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,7 +32,10 @@ class StoreGenerationScheduleRequest extends FormRequest
 
         return [
             'data' => ['required', 'array'],
-            'data.*.subject_group_id' => ['required', 'exists:subject_groups,id'],
+            'data.*.subject_group_id' => [
+                'required',
+                'exists:subject_groups,id'
+            ],
             'data.*.date' => [
                 'required',
                 'date',
