@@ -9,6 +9,7 @@ use App\Domain\GenerationSchedules\Resources\GenerationScheduleResource;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Domain\Syllabus\Models\Syllabus;
 use App\Http\Controllers\Controller;
+use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -53,14 +54,12 @@ class GenerationController extends Controller
         $request->validated();
         try {
             $syllabus = Syllabus::query()->latest()->first();
-            $start_date = Carbon::parse($syllabus->start_date);
-            $end_date = Carbon::parse($syllabus->end_date);
+            $start_date = CarbonImmutable::parse($syllabus->start_date);
+            $end_date = CarbonImmutable::parse($syllabus->end_date);
             $daysDifference = $start_date->diffInWeeks($end_date);
             $datesForTargetDay = [];
-
             foreach ($request->data as $data) {
-                $date = Carbon::parse($data['date']);
-                $targetDayOfWeek = $date->dayOfWeek;
+                $date = CarbonImmutable::parse($data['date']);
                 // Retrieve the subject group to determine how many times to insert per week
                 $subject_group = SubjectGroup::query()->find($data['subject_group_id']);
                 $countSubject = round(($subject_group->lesson_hour / 2) / $daysDifference); // Calculate countSubject
@@ -76,11 +75,13 @@ class GenerationController extends Controller
                     if ($weekTargetDay->between($start_date, $end_date)) {
                         // Initialize the insert counter for the week if it doesn't exist
                         $weekNumber = $weekTargetDay->weekOfYear; // Get the week number for tracking
+
                         if (!isset($weeklyInsertCount[$weekNumber])) {
                             $weeklyInsertCount[$weekNumber] = 0; // Initialize to zero
                         }
+//                        dd($weeklyInsertCount[$weekNumber]);
                         // Check if we can still insert for this week
-                        if ($weeklyInsertCount[$weekNumber] < $countSubject) {
+                        if ($weeklyInsertCount[$weekNumber] <= $countSubject) {
                             $generationSchedule = new GenerationSchedule();
                             $generationSchedule->teacher_id = Auth::id();
                             $generationSchedule->subject_group_id = $data['subject_group_id'];
