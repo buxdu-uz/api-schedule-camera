@@ -79,7 +79,6 @@ class GenerationController extends Controller
                         if (!isset($weeklyInsertCount[$weekNumber])) {
                             $weeklyInsertCount[$weekNumber] = 0; // Initialize to zero
                         }
-//                        dd($weeklyInsertCount[$weekNumber]);
                         // Check if we can still insert for this week
                         if ($weeklyInsertCount[$weekNumber] <= $countSubject) {
                             $generationSchedule = new GenerationSchedule();
@@ -103,8 +102,7 @@ class GenerationController extends Controller
                     }
                 }
             }
-//            dd($datesForTargetDay);
-            return $this->successResponse('Sizning fanlaringiz '.$request->data[0]['pair'].' - semester uchun biriktirildi',$datesForTargetDay);
+            return $this->successResponse('Sizning fanlaringiz '.$syllabus->semester.' - semester uchun biriktirildi',$datesForTargetDay);
         }catch (Exception $exception){
             return $this->errorResponse($exception->getMessage());
         }

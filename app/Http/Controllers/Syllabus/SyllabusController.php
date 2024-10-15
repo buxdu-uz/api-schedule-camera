@@ -32,7 +32,7 @@ class SyllabusController extends Controller
     public function latest(): JsonResponse
     {
         if ($this->syllabus->latest()) {
-            return $this->successResponse('', new SyllabusResource($this->syllabus->latest()->first()));
+            return $this->successResponse('', new SyllabusResource($this->syllabus->latest()));
         }
 
         return $this->errorResponse('Mavjud emas');
