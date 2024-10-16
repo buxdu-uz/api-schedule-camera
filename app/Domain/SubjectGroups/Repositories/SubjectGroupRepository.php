@@ -25,16 +25,17 @@ class SubjectGroupRepository
     /**
      * @return LengthAwarePaginator
      */
-    public function getOwnSubjectGroup()
+    public function getOwnSubjectGroup($filter)
     {
         // Fetch the subject groups, paginate them, and sort
         $subjectGroups = SubjectGroup::query()
+            ->Filter($filter)
             ->where('teacher_id', Auth::id())
             ->with('subject') // Eager load the subject relationship
             ->orderBy('subject_id') // Sort by subject name
             ->paginate(10); // Change 10 to your desired number of items per page
 
-// Group the paginated results
+        // Group the paginated results
         $groupedSubjectGroups = $subjectGroups->getCollection()->groupBy(function ($item) {
             return $item->subject->name;
         })->map(function ($group) {
@@ -44,7 +45,7 @@ class SubjectGroupRepository
             });
         });
 
-// Create a new paginator instance to return the paginated results with the grouped data
+        // Create a new paginator instance to return the paginated results with the grouped data
         $paginatedResults = new LengthAwarePaginator(
             $groupedSubjectGroups,
             $subjectGroups->total(),

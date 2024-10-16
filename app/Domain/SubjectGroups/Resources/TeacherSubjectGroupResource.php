@@ -29,6 +29,7 @@ class TeacherSubjectGroupResource extends JsonResource
             'lesson_hour' => $this->lesson_hour,
             'education_year' => $this->educationYear->name,
             'semester' => $this->semester,
+            'status' => $this->status,
             'groups' => GroupResource::collection($this->groups),
             'created-at' => $this->created_at
         ];

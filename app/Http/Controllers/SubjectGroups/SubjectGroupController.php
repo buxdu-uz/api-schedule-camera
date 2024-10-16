@@ -8,8 +8,10 @@ use App\Domain\SubjectGroups\Actions\StoreSubjectGroupAction;
 use App\Domain\SubjectGroups\DTO\StoreSubjectGroupDTO;
 use App\Domain\SubjectGroups\Repositories\SubjectGroupRepository;
 use App\Domain\SubjectGroups\Requests\StoreSubjectGroupRequest;
+use App\Domain\SubjectGroups\Requests\SubjectGroupFilterRequest;
 use App\Domain\SubjectGroups\Resources\SubjectGroupResource;
 use App\Domain\SubjectGroups\Resources\TeacherSubjectGroupResource;
+use App\Filters\SubjectGroupFilter;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -52,9 +54,10 @@ class SubjectGroupController extends Controller
         return SubjectGroupResource::collection($this->subject_groups->paginate());
     }
 
-    public function getOwnSubjectGroup(): JsonResponse
+    public function getOwnSubjectGroup(SubjectGroupFilterRequest $request): JsonResponse
     {
-        return response()->json( $this->subject_groups->getOwnSubjectGroup());
+        $filter = app()->make(SubjectGroupFilter::class, ['queryParams' => array_filter($request->validated())]);
+        return response()->json( $this->subject_groups->getOwnSubjectGroup($filter));
     }
 
     /**

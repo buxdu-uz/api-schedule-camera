@@ -59,6 +59,9 @@ class StoreGenerationScheduleAction
                             $generationSchedule->pair = $data['pair'];
                             $generationSchedule->save();
 
+                            SubjectGroup::query()->select('id','status')->find($data['subject_group_id'])->update([
+                                    'status' => true
+                                ]);
                             // Increment the insertion count for this week
                             $weeklyInsertCount[$weekNumber]++;
 

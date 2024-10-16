@@ -32,32 +32,9 @@ class SubjectGroupResource extends JsonResource
             'lesson_hour' => $this->lesson_hour,
             'education_year' => $this->educationYear->name,
             'semester' => $this->semester,
+            'status' => $this->status,
             'groups' => GroupResource::collection($this->groups),
             'created-at' => $this->created_at
         ];
     }
-
-//    /**
-//     * @return string|null
-//     */
-//    public function getLessonType(): ?string
-//    {
-//        return $this->lesson ? LessonType::from($this->lesson)->getTextValue() : null;
-//    }
-//
-//    /**
-//     * @return string|null
-//     */
-//    public function getFlow(): ?string
-//    {
-//        return $this->flow ? FlowOrSplitGroup::from($this->flow)->getTextValue() : null;
-//    }
-//
-//    /**
-//     * @return string|null
-//     */
-//    public function getSplitGroup(): ?string
-//    {
-//        return $this->split_group ? FlowOrSplitGroup::from($this->split_group)->getTextValue() : null;
-//    }
 }

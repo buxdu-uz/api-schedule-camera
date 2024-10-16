@@ -30,6 +30,7 @@ return new class extends Migration
             $table->integer('lesson_hour')->comment('dars soati');
             $table->foreignIdFor(ClassifierOption::class,'h_education_year');
             $table->integer('semester');
+            $table->boolean('status')->default(false)->comment('o\'qituvchi ushbu fanini kiritgan yoki kirmaganligi uchun kerak');
             $table->timestamps();
         });
     }

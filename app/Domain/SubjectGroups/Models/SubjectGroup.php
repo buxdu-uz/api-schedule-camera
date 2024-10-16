@@ -5,6 +5,7 @@ namespace App\Domain\SubjectGroups\Models;
 use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Groups\Models\Group;
 use App\Domain\Subjects\Models\Subject;
+use App\Models\Traits\Filterable;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class SubjectGroup extends Model
 {
+    use Filterable;
+
+    protected $fillable = ['status'];
+
     /**
      * @var int
      */
