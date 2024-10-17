@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Domain\Cameras\Models\Camera;
 use App\Domain\Cameras\Resources\CameraResource;
+use App\Domain\Rooms\Models\Room;
 use App\Domain\Users\Repositories\UserRepository;
 use App\Domain\Users\Requests\UserFilterRequest;
 use App\Domain\Users\Resources\RoleResource;
@@ -66,14 +67,47 @@ class UserController extends Controller
     public function setUserCamera(Request $request)
     {
         $request->validate([
-            'users' => 'required'
+            'users' => 'required',
+            'users.*' => 'array', // Validate that each entry within 'users' is an array
+//            'users.*.*.cameras' => 'sometimes|array', // Validate 'cameras' is an array
+//            'users.*.*.cameras.*' => 'integer|exists:cameras,id', // Validate each 'camera' ID is an integer and exists in the 'cameras' table
+//            'users.*.*.floor' => 'required|integer|exists:floors,id'
         ]);
         try {
-            foreach ($request->users as $user_id => $camera_ids) {
-                // Fetch users with the specified role in one query
+
+            foreach ($request->users as $user_id => $datas) {
                 $user = User::query()->find($user_id);
-                $user->cameras()->sync($camera_ids);
+                $cameraIds = [];
+
+                // Add cameras from the request data
+                if (!empty($datas[0]['cameras'])) {
+                    $cameraIds = array_merge($cameraIds, $datas[0]['cameras']);
+                }
+
+                // Add cameras based on the floor if the floor ID is provided
+                if (!empty($datas[0]['floor'])) {
+                    $floorCameras = Room::where('floor_id', $datas[0]['floor'])
+                        ->with('cameras:id') // Assuming Room has a cameras relationship
+                        ->get()
+                        ->pluck('cameras.*.id')
+                        ->flatten() // Flatten nested camera ID arrays
+                        ->toArray();
+
+                    $cameraIds = array_merge($cameraIds, $floorCameras);
+                }
+
+                // Sync all collected camera IDs for the user
+                if (!empty($cameraIds)) {
+                    $user->cameras()->sync($cameraIds);
+                }
             }
+
+
+//            foreach ($request->users as $user_id => $camera_ids) {        //current code
+//                // Fetch users with the specified role in one query
+//                $user = User::query()->find($user_id);
+//                $user->cameras()->sync($camera_ids);
+//            }
             return $this->successResponse('Cameras were attached to the users');
         }catch (Exception $exception){
             return $this->errorResponse($exception->getMessage());
