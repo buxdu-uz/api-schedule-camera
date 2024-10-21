@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Buildings\BuildingController;
 use App\Http\Controllers\Cameras\CameraController;
 use App\Http\Controllers\Departments\DepartmentController;
+use App\Http\Controllers\Favourites\FavouriteController;
 use App\Http\Controllers\Generations\GenerationController;
 use App\Http\Controllers\Groups\GroupController;
 use App\Http\Controllers\Schedules\ScheduleListController;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/login', [LoginController::class, 'login']);
+Route::get('favourites',[FavouriteController::class,'getAll']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']], function () {
     Route::post('/room/set/camera',[BuildingController::class,'setRoomCamera']);
@@ -28,6 +30,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::get('subjects',[SubjectController::class,'paginate']);
     Route::post('syllabus',[SyllabusController::class,'store']);
     Route::get('subject_groups',[SubjectGroupController::class,'index']);
+
+    Route::get('camera/favourites',[CameraController::class,'getAllFavouriteCameras']);
+
+
+    Route::post('camera/{favourite}/favourite/attach',[FavouriteController::class,'attachCameraToFavourite']);
+    Route::get('favourites',[FavouriteController::class,'index']);
+    Route::post('favourites',[FavouriteController::class,'store']);
+    Route::put('favourites/{favourite}',[FavouriteController::class,'update']);
+    Route::delete('favourites/{favourite}',[FavouriteController::class,'destroy']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {

@@ -18,6 +18,7 @@ use App\Filters\UserFilter;
 use App\Http\Controllers\Controller;
 use App\Imports\CameraImport;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -103,5 +104,13 @@ class CameraController extends Controller
         }catch (Exception $exception){
             return $this->errorResponse($exception->getMessage());
         }
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function getAllFavouriteCameras()
+    {
+        return $this->successResponse('', CameraResource::collection(Camera::query()->where('favourite',1)->get()));
     }
 }
