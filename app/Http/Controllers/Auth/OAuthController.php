@@ -34,7 +34,7 @@ class OAuthController extends Controller
         $authorizationUrl = $this->provider->getAuthorizationUrl();
         \Log::info("Stored state: " . $this->provider->getState());
         // Store the state generated for you and store it to the session.
-        $this->sesion = $this->provider->getState();
+        $this->session = $this->provider->getState();
 
         // Redirect the user to the authorization URL
         return redirect()->away($authorizationUrl);
@@ -44,7 +44,7 @@ class OAuthController extends Controller
     {
         \Log::info("Returned state: " . $request->input('state'));
         \Log::info("Session state: " . $this->session);
-        if ($request->input('state') != $this->session) {
+        if ($request->input('state') !== $this->session) {
             $this->session = '';
             return $this->errorResponse('Invalid OAuth state');
         }
