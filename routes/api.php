@@ -15,8 +15,8 @@ use App\Http\Controllers\Syllabus\SyllabusController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/redirect', [OAuthController::class, 'redirectToProvider']);
-Route::get('/callback', [OAuthController::class, 'handleProviderCallback']);
+Route::get('/redirect', [OAuthController::class, 'redirectToProvider'])->middleware('web');
+Route::get('/callback', [OAuthController::class, 'handleProviderCallback'])->middleware('web');
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('favourites',[FavouriteController::class,'getAll']);
 
