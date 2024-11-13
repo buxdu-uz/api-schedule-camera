@@ -14,8 +14,6 @@ class OAuthController extends Controller
      */
     private $provider;
 
-    private $session = '';
-
     public function __construct()
     {
         $this->provider = new GenericProvider([
@@ -32,9 +30,9 @@ class OAuthController extends Controller
     {
         // Fetch the authorization URL from the provider
         $authorizationUrl = $this->provider->getAuthorizationUrl();
-        \Log::info("Stored state: " . $this->provider->getState());
         // Store the state generated for you and store it to the session.
-        $this->session = $this->provider->getState();
+        session()->put('oauthstate', $this->provider->getState());
+        \Log::info("authstate state: " . session()->get('oauthstate'));
 
         // Redirect the user to the authorization URL
         return redirect()->away($authorizationUrl);
@@ -43,9 +41,9 @@ class OAuthController extends Controller
     public function handleProviderCallback(Request $request)
     {
         \Log::info("Returned state: " . $request->input('state'));
-        \Log::info("Session state: " . $this->session);
-        if ($request->input('state') !== $this->session) {
-            $this->session = '';
+        \Log::info("Session state: " . session()->get('oauthstate'));
+        if ($request->input('state') !== session()->get('oauthstate')) {
+            session()->forget('oauthstate');
             return $this->errorResponse('Invalid OAuth state');
         }
 
