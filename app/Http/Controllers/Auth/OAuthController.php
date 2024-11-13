@@ -30,7 +30,7 @@ class OAuthController extends Controller
     {
         // Fetch the authorization URL from the provider
         $authorizationUrl = $this->provider->getAuthorizationUrl();
-
+        \Log::info("Stored state: " . $this->provider->getState());
         // Store the state generated for you and store it to the session.
         Session::put('oauth2state', $this->provider->getState());
 
@@ -40,9 +40,8 @@ class OAuthController extends Controller
 
     public function handleProviderCallback(Request $request)
     {
-        // Check state parameter to prevent CSRF attacks
-        $state = $request->input('state');
-        if (empty($state) || $state !== Session::get('oauth2state')) {
+        \Log::info("Returned state: " . $request->input('state'));
+        if ($request->input('state') !== Session::get('oauth2state')) {
             Session::forget('oauth2state');
             return $this->errorResponse('Invalid OAuth state');
         }
