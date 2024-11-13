@@ -9,6 +9,9 @@ use League\OAuth2\Client\Provider\GenericProvider;
 
 class OAuthController extends Controller
 {
+    /**
+     * @var GenericProvider
+     */
     private $provider;
 
     public function __construct()
@@ -41,7 +44,7 @@ class OAuthController extends Controller
         $state = $request->input('state');
         if (empty($state) || $state !== Session::get('oauth2state')) {
             Session::forget('oauth2state');
-            return redirect('/')->withErrors('Invalid OAuth state');
+            return $this->errorResponse('Invalid OAuth state');
         }
 
         try {
@@ -54,13 +57,13 @@ class OAuthController extends Controller
             $resourceOwner = $this->provider->getResourceOwner($accessToken);
             $userDetails = $resourceOwner->toArray();
 
-            return response()->json([
+            return $this->successResponse('',[
                 'accessToken' => $accessToken,
                 'userDetails' => $userDetails,
             ]);
 
         } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
-            return redirect('/')->withErrors($e->getMessage());
+            return $this->errorResponse($e->getMessage());
         }
     }
 }
