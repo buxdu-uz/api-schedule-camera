@@ -41,7 +41,8 @@ class OAuthController extends Controller
     public function handleProviderCallback(Request $request)
     {
         \Log::info("Returned state: " . $request->input('state'));
-        if ($request->input('state') !== Session::get('oauth2state')) {
+        \Log::info("Session state: " . Session::get('oauth2state'));
+        if ($request->input('state') != Session::get('oauth2state')) {
             Session::forget('oauth2state');
             return $this->errorResponse('Invalid OAuth state');
         }
