@@ -20,7 +20,7 @@ class CameraResource extends JsonResource
             'name' => $this->name,
             'link' => $this->link,
             'favourite' => $this->favourite,
-            'room' => RoomResource::collection($this->rooms)
+            'room' => $this->rooms
         ];
     }
 }
