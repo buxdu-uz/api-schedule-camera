@@ -73,6 +73,7 @@ class StoreGenerationScheduleRequest extends FormRequest
                     // General uniqueness check for date and pair
                     $pair = data_get($value, 'pair');
                     $exists = GenerationSchedule::query()
+                        ->where('subject_group_id', $subjectGroupId)
                         ->where('date', $date)
                         ->where('pair', $pair)
                         ->exists();
