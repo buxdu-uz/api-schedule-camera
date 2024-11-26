@@ -81,9 +81,10 @@ class PersonalService
                         'employee_id' => $item->employee_id_number,
 //                        'login' => $this->getUniqLogin($item),
                         'login' => $item->employee_id_number,
-                        'password' => Str::slug(
-                            substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)
-                        ),
+                        'password' => $item->employee_id_number,
+//                        'password' => Str::slug(
+//                            substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)
+//                        ),
                         'avatar' => $item->image,
                     ]);
 

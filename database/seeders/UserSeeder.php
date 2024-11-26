@@ -91,7 +91,7 @@ class UserSeeder extends Seeder
             'name' => 'Administarator',
             'login' => 'admin',
             'employee_id' => '10000001',
-            'password' => 'admin',
+            'password' => 'buxdu2024',
         ]);
         $admin->syncRoles(['admin','dean','dean_deputy','manager','teacher','department','vice_rector','chief_specialist']);
     }
