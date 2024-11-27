@@ -71,7 +71,7 @@ class StoreSubjectGroupRequest extends FormRequest
                     $exists = SubjectGroup::query()
                         ->where('subject_id', $subjectId)
                         ->whereHas('groups', function ($query) use ($value) {
-                            $query->where('id', $value);
+                            $query->where('group_id', $value);
                         })
                         ->exists();
 
