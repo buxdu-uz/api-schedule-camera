@@ -40,6 +40,9 @@ class StoreSubjectGroupRequest extends FormRequest
 //        ];
 
         return [
+            'data' => [
+                'required','array'
+            ],
             'data.subject_id.*' => ['required', 'integer', 'exists:subjects,id'],
             'data.lesson.*' => ['required', new Enum(LessonType::class)],
             'data.flow.*' => ['required', new Enum(FlowOrSplitGroup::class)],
