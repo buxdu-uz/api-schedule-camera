@@ -2,6 +2,7 @@
 
 namespace App\Domain\SubjectGroups\Requests;
 
+use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Enums\FlowOrSplitGroup;
 use App\Enums\LessonType;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -63,11 +64,13 @@ class StoreSubjectGroupRequest extends FormRequest
                 'integer',
                 'exists:groups,id',
                 function ($attribute, $value, $fail) {
-                    $subjectId = $this->input('subject_id');
-                    $exists = \DB::table('group_subject_group')
-                        ->join('subject_groups', 'group_subject_group.subject_group_id', '=', 'subject_groups.id')
-                        ->where('subject_groups.subject_id', $subjectId)
-                        ->where('group_subject_group.group_id', $value)
+                    $subjectId = $this->input('data.subject_id'); // Correct key for subject_id
+
+                    $exists = SubjectGroup::query()
+                        ->where('subject_id', $subjectId)
+                        ->whereHas('groups', function ($query) use ($value) {
+                            $query->where('id', $value); // Matching group ID
+                        })
                         ->exists();
 
                     if ($exists) {
