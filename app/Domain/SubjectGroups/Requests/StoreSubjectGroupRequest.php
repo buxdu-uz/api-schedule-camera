@@ -41,40 +41,42 @@ class StoreSubjectGroupRequest extends FormRequest
 //        ];
 
         return [
-            'data' => [
-                'required','array'
-            ],
-            'data.subject_id.*' => ['required', 'integer', 'exists:subjects,id'],
-            'data.lesson.*' => ['required', new Enum(LessonType::class)],
-            'data.flow.*' => ['required', new Enum(FlowOrSplitGroup::class)],
-            'data.split_group.*' => ['required', new Enum(FlowOrSplitGroup::class)],
-            'data.lesson_hour.*' => ['required', 'integer', 'min:1'],
-            'data.education_year.*' => ['required', 'integer'],
-            'data.semester.*' => ['required', 'integer', 'min:1', 'max:2'],
-            'data.group_ids.*' => [
+            'data' => ['required', 'array'],
+            'data.*.subject_id' => ['required', 'integer', 'exists:subjects,id'],
+            'data.*.lesson' => ['required', new Enum(LessonType::class)],
+            'data.*.flow' => ['required', new Enum(FlowOrSplitGroup::class)],
+            'data.*.split_group' => ['required', new Enum(FlowOrSplitGroup::class)],
+            'data.*.lesson_hour' => ['required', 'integer', 'min:1'],
+            'data.*.education_year' => ['required', 'integer'],
+            'data.*.semester' => ['required', 'integer', 'min:1', 'max:2'],
+            'data.*.groups' => [
                 'required',
                 'array',
                 function ($attribute, $value, $fail) {
-                    if ($this->flow === 'no' && count($value) > 1) {
-                        $fail('Only one group can be added when flow is no.');
+                    $index = explode('.', $attribute)[1]; // Current index in `data`
+                    $flow = request()->input("data.{$index}.flow");
+
+                    if ($flow === 'no' && count($value) > 1) {
+                        $fail("Only one group can be added when flow is 'no' (row {$index}).");
                     }
                 },
             ],
-            'data.group_ids.*.*' => [
+            'data.*.groups.*' => [
                 'integer',
                 'exists:groups,id',
                 function ($attribute, $value, $fail) {
-                    $subjectId = $this->input('data.subject_id'); // Correct key for subject_id
+                    $index = explode('.', $attribute)[1]; // Current index in `data`
+                    $subjectId = request()->input("data.{$index}.subject_id");
 
                     $exists = SubjectGroup::query()
                         ->where('subject_id', $subjectId)
                         ->whereHas('groups', function ($query) use ($value) {
-                            $query->where('id', $value); // Matching group ID
+                            $query->where('id', $value);
                         })
                         ->exists();
 
                     if ($exists) {
-                        $fail("Group ID {$value} is already attached to this subject.");
+                        $fail("Group ID {$value} is already attached to subject ID {$subjectId} (row {$index}).");
                     }
                 },
             ],
