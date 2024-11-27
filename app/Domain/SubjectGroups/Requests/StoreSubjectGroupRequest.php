@@ -40,14 +40,14 @@ class StoreSubjectGroupRequest extends FormRequest
 //        ];
 
         return [
-            'subject_id' => ['required', 'integer', 'exists:subjects,id'],
-            'lesson' => ['required', new Enum(LessonType::class)],
-            'flow' => ['required', new Enum(FlowOrSplitGroup::class)],
-            'split_group' => ['required', new Enum(FlowOrSplitGroup::class)],
-            'lesson_hour' => ['required', 'integer', 'min:1'],
-            'education_year' => ['required', 'integer'],
-            'semester' => ['required', 'integer', 'min:1', 'max:2'],
-            'group_ids' => [
+            'data.subject_id.*' => ['required', 'integer', 'exists:subjects,id'],
+            'data.lesson.*' => ['required', new Enum(LessonType::class)],
+            'data.flow.*' => ['required', new Enum(FlowOrSplitGroup::class)],
+            'data.split_group.*' => ['required', new Enum(FlowOrSplitGroup::class)],
+            'data.lesson_hour.*' => ['required', 'integer', 'min:1'],
+            'data.education_year.*' => ['required', 'integer'],
+            'data.semester.*' => ['required', 'integer', 'min:1', 'max:2'],
+            'data.group_ids.*' => [
                 'required',
                 'array',
                 function ($attribute, $value, $fail) {
@@ -56,7 +56,7 @@ class StoreSubjectGroupRequest extends FormRequest
                     }
                 },
             ],
-            'group_ids.*' => [
+            'data.group_ids.*.*' => [
                 'integer',
                 'exists:groups,id',
                 function ($attribute, $value, $fail) {
