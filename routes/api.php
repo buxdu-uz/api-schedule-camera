@@ -61,7 +61,7 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
     Route::get('own/schedules',[GenerationController::class,'getScheduleGroupBy']);
     Route::get('schedules/all',[GenerationController::class,'getAllScheduleGroupByDate']);
     Route::post('generation/schedule',[GenerationController::class,'generateSchedules']);
-//generation
+    //generation
 });
 
 Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher|admin']], function () {
