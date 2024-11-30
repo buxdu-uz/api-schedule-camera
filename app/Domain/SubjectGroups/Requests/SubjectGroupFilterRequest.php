@@ -26,7 +26,8 @@ class SubjectGroupFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'sometimes'
+            'status' => 'sometimes',
+            'group_id' => 'sometimes'
         ];
     }
 }

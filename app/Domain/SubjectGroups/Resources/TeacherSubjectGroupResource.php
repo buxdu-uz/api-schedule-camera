@@ -30,8 +30,9 @@ class TeacherSubjectGroupResource extends JsonResource
             'education_year' => $this->educationYear->name,
             'semester' => $this->semester,
             'status' => $this->status,
+            'department' => $this->teacher->profile->department->name ?? null,
             'groups' => GroupResource::collection($this->groups),
-            'created-at' => $this->created_at
+            'created-at' => $this->created_at,
         ];
     }
 }
