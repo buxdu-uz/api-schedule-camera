@@ -5,6 +5,7 @@ namespace App\Domain\SubjectGroups\Models;
 use App\Domain\Classifiers\Models\ClassifierOption;
 use App\Domain\Groups\Models\Group;
 use App\Domain\Subjects\Models\Subject;
+use App\Domain\Syllabus\Models\Syllabus;
 use App\Models\Traits\Filterable;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,6 +38,11 @@ class SubjectGroup extends Model
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(User::class,'teacher_id','id');
+    }
+
+    public function syllabi(): BelongsTo
+    {
+        return $this->belongsTo(Syllabus::class,'syllabus_id','id');
     }
 
     public function educationYear(): BelongsTo

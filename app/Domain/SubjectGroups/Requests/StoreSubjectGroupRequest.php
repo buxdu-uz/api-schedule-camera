@@ -48,7 +48,7 @@ class StoreSubjectGroupRequest extends FormRequest
             'data.*.split_group' => ['required', new Enum(FlowOrSplitGroup::class)],
             'data.*.lesson_hour' => ['required', 'integer', 'min:1'],
             'data.*.education_year' => ['required', 'integer'],
-            'data.*.semester' => ['required', 'integer', 'min:1', 'max:2'],
+            'data.*.semester' => ['required', 'exists:syllabi,id'],
             'data.*.groups' => [
                 'required',
                 'array',

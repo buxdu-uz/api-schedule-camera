@@ -29,13 +29,9 @@ class SyllabusController extends Controller
     /**
      * @return JsonResponse
      */
-    public function latest(): JsonResponse
+    public function getAll(): JsonResponse
     {
-        if ($this->syllabus->latest()) {
-            return $this->successResponse('', new SyllabusResource($this->syllabus->latest()));
-        }
-
-        return $this->errorResponse('Mavjud emas');
+        return $this->successResponse('', SyllabusResource::collection($this->syllabus->getAll()));
     }
 
     /**

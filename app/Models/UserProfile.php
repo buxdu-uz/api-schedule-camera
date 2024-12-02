@@ -68,6 +68,8 @@ class UserProfile extends Model
 
     protected $guarded=false;
 
+    protected $fillable = ['user_id'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -77,6 +79,7 @@ class UserProfile extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
     public function user_gender(): BelongsTo
     {
         return $this->belongsTo(ClassifierOption::class,'gender','id');

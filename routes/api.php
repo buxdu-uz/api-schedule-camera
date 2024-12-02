@@ -66,7 +66,7 @@ Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|mana
 
 Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teacher|admin']], function () {
     Route::get('/subjects',[SubjectController::class,'getAll']);
-    Route::get('syllabus',[SyllabusController::class,'latest']);
+    Route::get('syllabus',[SyllabusController::class,'getAll']);
     Route::get('schedule/list',[ScheduleListController::class,'userSchedule']);
     Route::post('subject_groups',[SubjectGroupController::class,'store']);
     Route::get('own/subject_group', [SubjectGroupController::class,'getOwnSubjectGroup']);

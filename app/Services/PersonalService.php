@@ -11,19 +11,12 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class PersonalService
 {
-    public mixed $DEAN=25;          //dekan
-    public mixed $DEAN_MUOVINI=25;  //zam dekan
-    public mixed $MANAGER=16;       //kafedra mudiri
-    public mixed $TEACHER=12;       //o'qituvchi
-    public mixed $DEPARTMENT=17;       //bo'lim boshlig'i
-    public mixed $VICE_RECTOR=22;       //O‘quv ishlari bo‘yicha birinchi prorektor
-    public mixed $CHIEF_SPECIALIST=35;
     /**
-     * @throws \Throwable
+     * Run the database seeds.
      */
     public function hemisMigration($type): void
     {
@@ -41,53 +34,48 @@ class PersonalService
         $res = $res->getBody();
         $result = json_decode($res);
         if ($result->success === true) {
-//            if ($result->data->pagination->totalCount > config('hemis.limit')) {
-                for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
-                    if ($i === 1) {
-                        $this->store($result);
-                    } else {
-                        $request = new Request(
-                            'GET',
-                            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&page=' . $i,
-                            $headers
-                        );
-                        $res = $client->sendAsync($request)->wait();
-                        $res = $res->getBody();
-                        $result = json_decode($res);
-                        $this->store($result);
-                    }
-                    echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
+            for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
+                if ($i === 1) {
+                    $this->store($result,$type);
+                } else {
+                    $request = new Request(
+                        'GET',
+                        config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&page=' . $i,
+                        $headers
+                    );
+                    $res = $client->sendAsync($request)->wait();
+                    $res = $res->getBody();
+                    $result = json_decode($res);
+                    $this->store($result,$type);
                 }
-//            }
+                if($type === 'teacher'){
+                    echo '    Teachers page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
+                }else{
+                    echo '    Employees page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
+                }
+            }
         } else {
-            $this->store($result);
+            $this->store($result,$type);
         }
     }
 
-    /**
-     * @throws \Throwable
-     */
-    public function store($result): void
+    public function store($result,$type): void
     {
         foreach (collect($result->data->items)->sortBy('id') as $item) {
             DB::beginTransaction();
             try {
-                if (!User::where('id', $item->id)
-                    ->orWhere('employee_id', $item->employee_id_number)->exists()) {
-                    $user = User::updateOrCreate([
-                        'id' => $item->id,
-                    ], [
-                        'name' => $item->full_name,
-                        'employee_id' => $item->employee_id_number,
-//                        'login' => $this->getUniqLogin($item),
-                        'login' => $item->employee_id_number,
-                        'password' => $item->employee_id_number,
-//                        'password' => Str::slug(
-//                            substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)
-//                        ),
-                        'avatar' => $item->image,
-                    ]);
+                $user = User::updateOrCreate([
+                    'id' => $item->id,
+                    'employee_id' => $item->employee_id_number,
+                ], [
+                    'name' => $item->full_name,
+                    'login' => $item->employee_id_number,
+                    'password' => bcrypt($item->employee_id_number),  // Encrypt password
+                    'avatar' => $item->image,
+                ]);
 
+                if($user->id){
+                    // Update or create associated profile
                     $user->profile()->updateOrCreate([
                         'user_id' => $user->id,
                     ], [
@@ -125,14 +113,41 @@ class PersonalService
                         'decree_date' => date('Y-m-d', $item->decree_date),
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
+
+                    // Assign role
+                    $this->assignRoleToEmployee($user, $type, $item);
+                    DB::commit();
                 }
-                DB::commit();
-            } catch (\Exception $exception) {
-                echo json_encode($item);
+            } catch (Exception $exception) {
+                echo json_encode($item, JSON_THROW_ON_ERROR);
                 DB::rollBack();
                 throw $exception;
             }
         }
+    }
+
+    protected function assignRoleToEmployee(User $user, string $type, $item): void
+    {
+        if($item->staffPosition->name == 'Dekan'){
+            $roleName = 'dean';
+        }elseif($item->staffPosition->name == 'Dekan muovini'){
+            $roleName = 'dean_deputy';
+        }elseif($item->staffPosition->name == 'Bo‘lim boshlig‘i'){
+            $roleName = 'manager';
+        }elseif($item->staffPosition->name == 'Bosh mutaxassis'){
+            $roleName = 'chief_specialist';
+        }
+        if($type === 'teacher'){
+            $roleName = 'teacher';
+        }
+//        $roleName = ($type === 'teacher') ? $type : $item->staffPosition->name;
+        $role = Role::updateOrCreate([
+            'name' => $roleName,
+        ], [
+            'guard_name' => 'web',
+        ]);
+
+        $user->assignRole($role);
     }
 
     private function getAvatar($image): string
@@ -140,124 +155,18 @@ class PersonalService
         return Storage::disk('public')->put('avatars', $image);
     }
 
-//    private function getUniqLogin($item): string
-//    {
-//        if (User::where('id', '!=', $item->id)->whereLogin(
-//            Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name))
-//        )->exists()) {
-//            return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name)) . rand(
-//                    100,
-//                    999
-//                );
+
+
+//            if($item->staffPosition->name == 'Dekan'){
+//            $roleName = 'dean';
+//        }elseif($item->staffPosition->name == 'Dekan muovini'){
+//            $roleName = 'dean_deputy';
+//        }elseif($item->staffPosition->name == 'Bo‘lim boshlig‘i'){
+//            $roleName = 'manager';
+//        }elseif($item->staffPosition->name == 'Bosh mutaxassis'){
+//            $roleName = 'chief_specialist';
 //        }
-//        return Str::slug(substr(Str::lower($item->first_name), 0, 1) . '_' . Str::lower($item->second_name));
-//    }
-
-
-    public function roleUser($role)
-    {
-        $client = new Client();
-        $headers = [
-            'Authorization' => 'Bearer ' . config('hemis.api_key'),
-            'Accept' => 'application/json',
-        ];
-        $request = new Request(
-            'GET',
-            config('hemis.host') . 'data/employee-list?type=all&limit=' . config('hemis.limit').'&_staff_position='.$role,
-            $headers
-        );
-        $res = $client->sendAsync($request)->wait();
-        $res = $res->getBody();
-        $result = json_decode($res);
-        if ($result->success === true) {
-            for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
-                if ($i === 1) {
-                    $this->setRoleUser($result,$role);
-                } else {
-                    $request = new Request(
-                        'GET',
-                        config('hemis.host') . 'data/employee-list?type=all&limit=' . config('hemis.limit').'&_staff_position='.$role. '&page=' . $i,
-                        $headers
-                    );
-                    $res = $client->sendAsync($request)->wait();
-                    $res = $res->getBody();
-                    $result = json_decode($res);
-                    $this->setRoleUser($result,$role);
-                }
-                echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
-            }
-        } else {
-            $this->setRoleUser($result,$role);
-        }
-    }
-
-    /**
-     * @param $result
-     * @param $role
-     * @return void
-     */
-    public function setRoleUser($result,$role)
-    {
-        foreach (collect($result->data->items)->sortBy('id') as $item) {
-            $user = User::query()->where('id', $item->id)
-                ->orWhere('employee_id', $item->employee_id_number)
-                ->first();
-
-            if($role == $this->DEAN){
-                $user->assignRole('dean');
-            }elseif($role == $this->DEAN_MUOVINI){
-                $user->assignRole('dean_deputy');
-            }elseif($role == $this->MANAGER){
-                $user->assignRole('manager');
-            }elseif($role == $this->TEACHER){
-                $user->assignRole('teacher');
-            }elseif($role == $this->DEPARTMENT){
-                $user->assignRole('department');
-            }elseif($role == $this->VICE_RECTOR){
-                $user->assignRole('vice_rector');
-            }elseif($role == $this->CHIEF_SPECIALIST){
-                $user->assignRole('chief_specialist');
-            }
-        }
-    }
-
-
-//    public function hemisMigration($type): void
-//    {
-//        $client = new Client();
-//        $headers = [
-//            'Authorization' => 'Bearer ' . config('hemis.api_key'),
-//            'Accept' => 'application/json',
-//        ];
-//        $request = new Request(
-//            'GET',
-//            config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type,
-//            $headers
-//        );
-//        $res = $client->sendAsync($request)->wait();
-//        $res = $res->getBody();
-//        $result = json_decode($res);
-//        if ($result->success === true) {
-////            if ($result->data->pagination->totalCount > config('hemis.limit')) {
-//            for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
-//                if ($i === 1) {
-//                    $this->store($result,$role);
-//                } else {
-//                    $request = new Request(
-//                        'GET',
-//                        config('hemis.host') . 'data/employee-list?type=' . $type . '&limit=' . config('hemis.limit').'&_staff_position='.$role.'&_employee_type='.$employee_type . '&page=' . $i,
-//                        $headers
-//                    );
-//                    $res = $client->sendAsync($request)->wait();
-//                    $res = $res->getBody();
-//                    $result = json_decode($res);
-//                    $this->store($result,$role);
-//                }
-//                echo '    Employeds page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
-//            }
-////            }
-//        } else {
-//            $this->store($result,$role);
+//        if($type === 'teacher'){
+//            $roleName = 'teacher';
 //        }
-//    }
 }
