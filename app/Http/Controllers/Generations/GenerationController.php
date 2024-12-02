@@ -56,20 +56,7 @@ class GenerationController extends Controller
                 return Carbon::parse($schedule->date)->startOfWeek()->format('Y-m-d');
             });
 
-        // Set the current page and items per page (1 week per page)
-        $currentPage = request()->get('page', 1);
-        $perPage = 1;
-
-        // Paginate the grouped schedules
-        $paginatedSchedules = new LengthAwarePaginator(
-            $schedules->forPage($currentPage, $perPage),
-            $schedules->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        return GenerationScheduleGroupedResource::collection($paginatedSchedules);
+        return GenerationScheduleGroupedResource::collection($schedules);
     }
 
     public function getScheduleGroupBy(GenerationScheduleFilterRequest $request)
