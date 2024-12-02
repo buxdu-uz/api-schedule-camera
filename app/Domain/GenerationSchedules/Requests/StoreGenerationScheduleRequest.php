@@ -27,21 +27,31 @@ class StoreGenerationScheduleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $syllabus = Syllabus::query()->latest()->first();
-        $start_date = $syllabus ? Carbon::parse($syllabus->start_date)->toDateString() : null;
-        $end_date = $syllabus ? Carbon::parse($syllabus->end_date)->toDateString() : null;
-
         return [
             'data' => ['required', 'array'],
             'data.*.subject_group_id' => [
                 'required',
                 'exists:subject_groups,id',
+                function ($attribute, $value, $fail) {
+                    // Request orqali kelayotgan subject_group_id ni syllabus bilan bog‘lash
+                    $subjectGroup = SubjectGroup::query()->find($value);
+                    if (!$subjectGroup || !$subjectGroup->syllabus) {
+                        $fail("Subject group ID {$value} uchun syllabus mavjud emas.");
+                        return;
+                    }
+
+                    $syllabusStartDate = Carbon::parse($subjectGroup->syllabus->start_date)->toDateString();
+                    $syllabusEndDate = Carbon::parse($subjectGroup->syllabus->end_date)->toDateString();
+
+                    $date = data_get(request('data.*'), 'date');
+                    if (!$date || $date < $syllabusStartDate || $date > $syllabusEndDate) {
+                        $fail("Berilgan sana syllabusning start_date va end_date orasida emas: {$syllabusStartDate} va {$syllabusEndDate}.");
+                    }
+                },
             ],
             'data.*.date' => [
                 'required',
                 'date',
-                'after_or_equal:' . $start_date,
-                'before_or_equal:' . $end_date,
             ],
             'data.*.pair' => ['required', 'integer'],
             'data.*' => [
@@ -49,7 +59,7 @@ class StoreGenerationScheduleRequest extends FormRequest
                     $date = data_get($value, 'date');
                     $subjectGroupId = data_get($value, 'subject_group_id');
 
-                    // Count existing lectures for the given subject group and date
+                    // Tekshiruv: berilgan sana uchun faqat bitta lecture mavjud bo'lishi kerak
                     $lectureCount = GenerationSchedule::query()
                         ->whereHas('subjectGroup', function ($query) {
                             $query->where('lesson', '=', 'lecture');
@@ -58,19 +68,17 @@ class StoreGenerationScheduleRequest extends FormRequest
                         ->where('subject_group_id', $subjectGroupId)
                         ->count();
 
-                    // Include current data array row in the check
                     $lectureInputCount = collect(request('data'))
                         ->where('subject_group_id', $subjectGroupId)
                         ->where('date', $date)
                         ->count();
 
-                    // If lectures exceed one for the given subject group and date, fail validation
                     if (($lectureCount + $lectureInputCount) > 1) {
-                        $fail("Only one 'lecture' lesson can be scheduled per day for subject group ID {$subjectGroupId}.");
+                        $fail("Subject group ID {$subjectGroupId} uchun bir kunda faqat bitta 'lecture' bo'lishi mumkin.");
                         return;
                     }
 
-                    // General uniqueness check for date and pair
+                    // Sana va juftlik bo‘yicha umumiy unikal bo'lishini tekshirish
                     $pair = data_get($value, 'pair');
                     $exists = GenerationSchedule::query()
                         ->where('subject_group_id', $subjectGroupId)
@@ -79,9 +87,9 @@ class StoreGenerationScheduleRequest extends FormRequest
                         ->exists();
 
                     if ($exists) {
-                        $fail("The combination of date and pair already exists for date {$date}.");
+                        $fail("Subject group ID {$subjectGroupId} uchun sana va juftlik kombinatsiyasi allaqachon mavjud.");
                     }
-                }
+                },
             ],
         ];
     }
