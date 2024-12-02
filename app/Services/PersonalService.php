@@ -11,12 +11,16 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 class PersonalService
 {
     /**
      * Run the database seeds.
+     */
+    /**
+     * @throws \Throwable
      */
     public function hemisMigration($type): void
     {
@@ -34,6 +38,7 @@ class PersonalService
         $res = $res->getBody();
         $result = json_decode($res);
         if ($result->success === true) {
+//            if ($result->data->pagination->totalCount > config('hemis.limit')) {
             for ($i = 1; $i <= $result->data->pagination->pageCount; $i++) {
                 if ($i === 1) {
                     $this->store($result,$type);
@@ -54,28 +59,33 @@ class PersonalService
                     echo '    Employees page: ' . $i . '/' . $result->data->pagination->pageCount . ' Stored' . PHP_EOL;
                 }
             }
+//            }
         } else {
             $this->store($result,$type);
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function store($result,$type): void
     {
         foreach (collect($result->data->items)->sortBy('id') as $item) {
             DB::beginTransaction();
             try {
-                $user = User::updateOrCreate([
-                    'id' => $item->id,
-                    'employee_id' => $item->employee_id_number,
-                ], [
-                    'name' => $item->full_name,
-                    'login' => $item->employee_id_number,
-                    'password' => bcrypt($item->employee_id_number),  // Encrypt password
-                    'avatar' => $item->image,
-                ]);
+                if (!User::where('id', $item->id)
+                    ->orWhere('employee_id', $item->employee_id_number)->exists()) {
+                    $user = User::updateOrCreate([
+                        'id' => $item->id,
+                    ], [
+                        'name' => $item->full_name,
+                        'employee_id' => $item->employee_id_number,
+//                        'login' => $this->getUniqLogin($item),
+                        'login' => $item->employee_id_number,
+                        'password' => bcrypt($item->employee_id_number),
+                        'avatar' => $item->image,
+                    ]);
 
-                if($user->id){
-                    // Update or create associated profile
                     $user->profile()->updateOrCreate([
                         'user_id' => $user->id,
                     ], [
@@ -113,13 +123,12 @@ class PersonalService
                         'decree_date' => date('Y-m-d', $item->decree_date),
                         'tutorGroups' => json_encode($item->tutorGroups),
                     ]);
-
-                    // Assign role
                     $this->assignRoleToEmployee($user, $type, $item);
-                    DB::commit();
                 }
-            } catch (Exception $exception) {
-                echo json_encode($item, JSON_THROW_ON_ERROR);
+                // Assign role
+                DB::commit();
+            } catch (\Exception $exception) {
+                echo json_encode($item);
                 DB::rollBack();
                 throw $exception;
             }
@@ -128,21 +137,24 @@ class PersonalService
 
     protected function assignRoleToEmployee(User $user, string $type, $item): void
     {
-        if($item->staffPosition->name == 'Dekan'){
-            $roleName = 'dean';
-        }elseif($item->staffPosition->name == 'Dekan muovini'){
-            $roleName = 'dean_deputy';
-        }elseif($item->staffPosition->name == 'Bo‘lim boshlig‘i'){
-            $roleName = 'manager';
-        }elseif($item->staffPosition->name == 'Bosh mutaxassis'){
-            $roleName = 'chief_specialist';
-        }
         if($type === 'teacher'){
             $roleName = 'teacher';
+        }else{
+            if($item->staffPosition->name == 'Dekan'){
+                $roleName = 'dean';
+            }elseif($item->staffPosition->name == 'Dekan muovini'){
+                $roleName = 'dean_deputy';
+            }elseif($item->staffPosition->name == 'Bo‘lim boshlig‘i'){
+                $roleName = 'manager';
+            }elseif($item->staffPosition->name == 'Bosh mutaxassis'){
+                $roleName = 'chief_specialist';
+            }else{
+                $roleName = $item->staffPosition->name;
+            }
         }
 //        $roleName = ($type === 'teacher') ? $type : $item->staffPosition->name;
         $role = Role::updateOrCreate([
-            'name' => $roleName,
+            'name' => Str::slug($roleName),
         ], [
             'guard_name' => 'web',
         ]);

@@ -29,10 +29,10 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        echo "Starting Migrate Hemis Teacher" . PHP_EOL;
-        $this->personal->hemisMigration('teacher');
-
         echo "Starting Migrate Hemis Employees" . PHP_EOL;
         $this->personal->hemisMigration('employee');
+
+        echo "Starting Migrate Hemis Teacher" . PHP_EOL;
+        $this->personal->hemisMigration('teacher');
     }
 }

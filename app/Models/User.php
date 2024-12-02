@@ -2,11 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Domain\Cameras\Models\Camera;
 use App\Models\Traits\Filterable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -43,7 +40,7 @@ class User extends Authenticatable
 
     public function profile(): HasOne
     {
-        return $this->hasOne(UserProfile::class,'user_id');
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
 
     public function cameras(): BelongsToMany
