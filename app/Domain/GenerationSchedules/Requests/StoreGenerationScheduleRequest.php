@@ -35,15 +35,24 @@ class StoreGenerationScheduleRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     // Request orqali kelayotgan subject_group_id ni syllabus bilan bog‘lash
                     $subjectGroup = SubjectGroup::query()->find($value);
-                    if (!$subjectGroup || !$subjectGroup->syllabus) {
+                    if (!$subjectGroup || !$subjectGroup->syllabi) {
                         $fail("Subject group ID {$value} uchun syllabus mavjud emas.");
                         return;
                     }
 
-                    $syllabusStartDate = Carbon::parse($subjectGroup->syllabus->start_date)->toDateString();
-                    $syllabusEndDate = Carbon::parse($subjectGroup->syllabus->end_date)->toDateString();
+                    $syllabusStartDate = Carbon::parse($subjectGroup->syllabi->start_date)->toDateString();
+                    $syllabusEndDate = Carbon::parse($subjectGroup->syllabi->end_date)->toDateString();
+                    // Extract the current index (e.g., data.0.subject_group_id -> 0)
+                    preg_match('/data\.(\d+)\.subject_group_id/', $attribute, $matches);
+                    $index = $matches[1] ?? null;
 
-                    $date = data_get(request('data.*'), 'date');
+                    if ($index === null) {
+                        $fail("Invalid attribute structure.");
+                        return;
+                    }
+
+                    // Get the date for the corresponding item
+                    $date = request("data.$index.date");
                     if (!$date || $date < $syllabusStartDate || $date > $syllabusEndDate) {
                         $fail("Berilgan sana syllabusning start_date va end_date orasida emas: {$syllabusStartDate} va {$syllabusEndDate}.");
                     }

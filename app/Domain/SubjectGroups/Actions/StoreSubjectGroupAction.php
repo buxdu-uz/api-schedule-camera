@@ -30,6 +30,7 @@ class StoreSubjectGroupAction
                 $subject_group->lesson_hour = $data['lesson_hour'];
                 $subject_group->h_education_year = $data['education_year'];
                 $subject_group->semester = $data['semester'];
+                $subject_group->syllabus_id = $data['semester'];
                 $subject_group->save();
                 $subject_group->groups()->attach($data['groups']);
             }
