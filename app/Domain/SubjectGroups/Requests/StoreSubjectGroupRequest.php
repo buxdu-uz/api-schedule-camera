@@ -67,16 +67,18 @@ class StoreSubjectGroupRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $index = explode('.', $attribute)[1]; // Current index in `data`
                     $subjectId = request()->input("data.{$index}.subject_id");
+                    $lesson = request()->input("data.{$index}.lesson");
 
                     $exists = SubjectGroup::query()
                         ->where('subject_id', $subjectId)
+                        ->where('lesson', $lesson)
                         ->whereHas('groups', function ($query) use ($value) {
                             $query->where('group_id', $value);
                         })
                         ->exists();
 
                     if ($exists) {
-                        $fail("Group ID {$value} is already attached to subject ID {$subjectId} (row {$index}).");
+                        $fail("Group ID {$value} is already attached to subject ID {$subjectId} and lesson {$lesson} (row {$index}).");
                     }
                 },
             ],
