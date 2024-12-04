@@ -38,7 +38,7 @@ class StoreGenerationScheduleAction
                     throw new Exception('Mavjud subject_group_id topilmadi.');
                 }
 
-                $totalLessons = round(($subjectGroup->lesson_hour / 2) / $totalWeeks);
+                $totalLessons = ceil(($subjectGroup->lesson_hour / 2) / $totalWeeks);
                 $weeklySchedule = [];
 
                 for ($week = 0; $week <= $totalWeeks; $week++) {
