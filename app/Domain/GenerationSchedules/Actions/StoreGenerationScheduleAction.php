@@ -38,9 +38,51 @@ class StoreGenerationScheduleAction
                     throw new Exception('Mavjud subject_group_id topilmadi.');
                 }
 
+                // Calculate total lessons per week
                 $totalLessons = ceil(($subjectGroup->lesson_hour / 2) / $totalWeeks);
-                $weeklySchedule = [];
 
+                // Special case: if totalLessons is less than 1, schedule the lesson on the specified date
+                if ((($subjectGroup->lesson_hour / 2) / $totalWeeks) < 1) {
+                    $totalLessons = 1; // Ensure at least one lesson
+                    $weekNumber = $date->weekOfYear;
+
+                    if (!isset($weeklySchedule[$weekNumber])) {
+                        $weeklySchedule[$weekNumber] = [];
+                    }
+
+                    $dayOfWeek = $date->dayOfWeek;
+
+                    // Prevent scheduling on past dates
+                    if ($date->isPast()) {
+                        throw new Exception("Dars faqat hozirgi yoki kelajakdagi sanalarda qo'yilishi mumkin.");
+                    }
+
+                    // Check if the lesson already exists on the same day
+                    if (isset($weeklySchedule[$weekNumber][$dayOfWeek])) {
+                        throw new Exception(
+                            "Haftaning bir kunida faqat bitta dars qo'yilishi mumkin: " . $date->toDateString()
+                        );
+                    }
+
+                    // Jadvalga dars qo'shish
+                    $generationSchedule = new GenerationSchedule();
+                    $generationSchedule->teacher_id = Auth::id();
+                    $generationSchedule->subject_group_id = $data['subject_group_id'];
+                    $generationSchedule->date = $date->toDateString();
+                    $generationSchedule->pair = $data['pair'];
+                    $generationSchedule->save();
+
+                    // Haftalik jadvalni yangilash
+                    $weeklySchedule[$weekNumber][$dayOfWeek] = $date->toDateString();
+
+                    // Qo'shilgan sanani saqlash
+                    $datesForTargetDay[$date->toDateString()][] = $date->toDateString();
+
+                    // Skip the rest of the loop for this special case
+                    continue;
+                }
+
+                $weeklySchedule = [];
                 for ($week = 0; $week <= $totalWeeks; $week++) {
                     $currentWeekDate = $date->copy()->addWeeks($week);
 

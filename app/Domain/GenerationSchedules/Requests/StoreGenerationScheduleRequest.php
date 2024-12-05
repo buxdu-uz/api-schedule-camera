@@ -52,7 +52,7 @@ class StoreGenerationScheduleRequest extends FormRequest
                     }
                 },
             ],
-            'data.*.date' => ['required', 'date'],
+            'data.*.date' => ['required', 'date', 'after_or_equal:' . Carbon::today()->toDateString()], // Prevent past dates
             'data.*.pair' => ['required', 'integer'],
             'data.*' => [
                 function ($attribute, $value, $fail) {
@@ -72,7 +72,7 @@ class StoreGenerationScheduleRequest extends FormRequest
 
                     $weeksCount = $syllabusStartDate->diffInWeeks($syllabusEndDate);
                     $totalPairs = $subjectGroup->lesson_hour / 2;
-                    $pairsPerWeek = ceil($totalPairs / $weeksCount);
+                    $pairsPerWeek = max(1, ceil($totalPairs / $weeksCount)); // Ensure pairsPerWeek is at least 1
                     $weeklyPairsCount = GenerationSchedule::query()
                         ->where('subject_group_id', $subjectGroupId)
                         ->whereBetween('date', [$syllabusStartDate, $syllabusEndDate])
@@ -105,8 +105,20 @@ class StoreGenerationScheduleRequest extends FormRequest
                     if ($exists) {
                         $fail("Subject group ID {$subjectGroupId} uchun sana va juftlik kombinatsiyasi allaqachon mavjud.");
                     }
+
+                    // If pairsPerWeek is less than 1, allow only 1 entry
+                    if (($totalPairs / $weeksCount) < 1) {
+                        $existingScheduleCount = GenerationSchedule::query()
+                            ->where('subject_group_id', $subjectGroupId)
+                            ->count();
+
+                        if ($existingScheduleCount >= 1) {
+                            $fail("Subject group ID {$subjectGroupId} uchun faqat bitta dars bir kunda bo'lishi mumkin.");
+                        }
+                    }
                 },
             ],
         ];
     }
+
 }
