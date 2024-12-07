@@ -72,7 +72,7 @@ class StoreGenerationScheduleRequest extends FormRequest
 
                     $weeksCount = $syllabusStartDate->diffInWeeks($syllabusEndDate);
                     $totalPairs = $subjectGroup->lesson_hour / 2;
-                    $pairsPerWeek = max(1, ceil($totalPairs / $weeksCount)); // Ensure pairsPerWeek is at least 1
+                    $pairsPerWeek = ceil($totalPairs / $weeksCount); // Ensure pairsPerWeek is at least 1
                     $weeklyPairsCount = GenerationSchedule::query()
                         ->where('subject_group_id', $subjectGroupId)
                         ->whereBetween('date', [$syllabusStartDate, $syllabusEndDate])
