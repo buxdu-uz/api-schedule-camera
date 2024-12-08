@@ -105,7 +105,6 @@ class StoreGenerationScheduleRequest extends FormRequest
                     if ($exists) {
                         $fail("Subject group ID {$subjectGroupId} uchun sana va juftlik kombinatsiyasi allaqachon mavjud.");
                     }
-
                     // If pairsPerWeek is less than 1, allow only 1 entry
                     if (($totalPairs / $weeksCount) < 1) {
                         $existingScheduleCount = GenerationSchedule::query()

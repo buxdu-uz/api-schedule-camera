@@ -22,6 +22,7 @@ class GenerationScheduleResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'syllabi_id' => $this->subjectGroup->syllabi->id,
             'teacher' => $this->teacher->name,
             'subject' => $this->subjectGroup->subject->name,
             'lesson' => LessonType::from($this->subjectGroup->lesson)->getTextValue(),

@@ -24,13 +24,13 @@ class StoreGenerationScheduleAction
     {
         DB::beginTransaction();
         try {
-            $syllabus = Syllabus::query()->latest()->first();
-            $start_date = Carbon::parse($syllabus->start_date);
-            $end_date = Carbon::parse($syllabus->end_date);
-            $totalWeeks = $start_date->diffInWeeks($end_date);
-            $datesForTargetDay = [];
 
             foreach ($dto->getData() as $data) {
+                    $syllabus = Syllabus::query()->find($data['syllabi_id']);
+                    $start_date = Carbon::parse($syllabus->start_date);
+                    $end_date = Carbon::parse($syllabus->end_date);
+                    $totalWeeks = $start_date->diffInWeeks($end_date);
+                    $datesForTargetDay = [];
                 $date = Carbon::parse($data['date']);
                 $subjectGroup = SubjectGroup::query()->find($data['subject_group_id']);
 
