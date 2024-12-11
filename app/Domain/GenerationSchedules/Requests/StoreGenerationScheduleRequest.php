@@ -115,6 +115,20 @@ class StoreGenerationScheduleRequest extends FormRequest
                             $fail("Subject group ID {$subjectGroupId} uchun faqat bitta dars bir kunda bo'lishi mumkin.");
                         }
                     }
+
+                    // Check group conflicts
+                    $groupIds = $subjectGroup->groups->pluck('id');
+                    $groupConflict = GenerationSchedule::query()
+                        ->whereHas('subjectGroup.groups', function ($query) use ($groupIds) {
+                            $query->whereIn('id', $groupIds);
+                        })
+                        ->where('date', $date)
+                        ->where('pair', $pair)
+                        ->exists();
+
+                    if ($groupConflict) {
+                        $fail("Ushbu guruhlarga ushbu parada oldin dars biriktirilgan.");
+                    }
                 },
             ],
         ];
