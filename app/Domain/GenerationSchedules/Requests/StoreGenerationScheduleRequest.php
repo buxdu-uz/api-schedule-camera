@@ -120,7 +120,7 @@ class StoreGenerationScheduleRequest extends FormRequest
                     $groupIds = $subjectGroup->groups->pluck('id');
                     $groupConflict = GenerationSchedule::query()
                         ->whereHas('subjectGroup.groups', function ($query) use ($groupIds) {
-                            $query->whereIn('id', $groupIds);
+                            $query->whereIn('group_id', $groupIds);
                         })
                         ->where('date', $date)
                         ->where('pair', $pair)
