@@ -26,7 +26,6 @@ class GenerationScheduleResource extends JsonResource
             'syllabi_id' => $this->subjectGroup->syllabi->id,
             'teacher' => $this->teacher->name,
             'subject' => $this->subjectGroup->subject->name,
-            'syllabi' => new SyllabusResource($this->subjectGroup->syllabi),
             'lesson' => LessonType::from($this->subjectGroup->lesson)->getTextValue(),
             'date' => $this->date,
             'pair' => $this->pair,
