@@ -7,6 +7,7 @@ use App\Domain\Rooms\Models\Room;
 use App\Domain\Rooms\Resources\RoomResource;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
 use App\Domain\SubjectGroups\Resources\SubjectGroupResource;
+use App\Domain\Syllabus\Resources\SyllabusResource;
 use App\Enums\LessonType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,6 +26,7 @@ class GenerationScheduleResource extends JsonResource
             'syllabi_id' => $this->subjectGroup->syllabi->id,
             'teacher' => $this->teacher->name,
             'subject' => $this->subjectGroup->subject->name,
+            'syllabi' => new SyllabusResource($this->subjectGroup->syllabi),
             'lesson' => LessonType::from($this->subjectGroup->lesson)->getTextValue(),
             'date' => $this->date,
             'pair' => $this->pair,

@@ -32,9 +32,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::get('subjects',[SubjectController::class,'paginate']);
     Route::post('syllabus',[SyllabusController::class,'store']);
     Route::get('subject_groups',[SubjectGroupController::class,'index']);
-
     Route::get('camera/favourites',[CameraController::class,'getAllFavouriteCameras']);
-
 
     Route::post('camera/{favourite}/favourite/attach',[FavouriteController::class,'attachCameraToFavourite']);
     Route::get('favourites',[FavouriteController::class,'index']);
