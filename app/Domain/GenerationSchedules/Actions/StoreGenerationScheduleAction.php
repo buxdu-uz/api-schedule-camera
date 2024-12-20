@@ -72,30 +72,6 @@ class StoreGenerationScheduleAction
                     $generationSchedule->pair = $data['pair'];
                     $generationSchedule->save();
 
-                    if ($subjectGroup->split_group == 'yes' && $data['teacher_id']){
-                        $generationSchedule = new GenerationSchedule();
-                        $generationSchedule->teacher_id = $data['teacher_id'];
-                        $generationSchedule->subject_group_id = $data['subject_group_id'];
-                        $generationSchedule->date = $date->toDateString();
-                        $generationSchedule->pair = $data['pair'];
-                        $generationSchedule->save();
-
-                        $sbGrp = new SubjectGroup();
-                        $sbGrp->teacher_id = $data['teacher_id'];
-                        $sbGrp->subject_id = $subjectGroup->subject_id;
-                        $sbGrp->lesson = $subjectGroup->lesson;
-                        $sbGrp->flow = $subjectGroup->flow;
-                        $sbGrp->split_group = $subjectGroup->split_group;
-                        $sbGrp->lesson_hour = $subjectGroup->lesson_hour;
-                        $sbGrp->h_education_year = $subjectGroup->h_education_year;
-                        $sbGrp->semester = $subjectGroup->semester;
-                        $sbGrp->syllabus_id = $subjectGroup->syllabus_id;
-                        $sbGrp->save();
-                        // Attach groups from the existing SubjectGroup to the new SubjectGroup
-                        $groupIds = $subjectGroup->groups()->pluck('id')->toArray();
-                        $sbGrp->groups()->attach($groupIds);
-                    }
-
                     // Haftalik jadvalni yangilash
                     $weeklySchedule[$weekNumber][$dayOfWeek] = $date->toDateString();
 

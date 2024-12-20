@@ -26,7 +26,6 @@ class StoreGenerationScheduleRequest extends FormRequest
     {
         return [
             'data' => ['required', 'array'],
-            'data.*.teacher_id' => ['sometimes'],
             'data.*.subject_group_id' => [
                 'required',
                 'exists:subject_groups,id',

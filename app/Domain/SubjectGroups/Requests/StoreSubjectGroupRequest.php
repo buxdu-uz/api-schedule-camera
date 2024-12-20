@@ -49,6 +49,7 @@ class StoreSubjectGroupRequest extends FormRequest
             'data.*.lesson_hour' => ['required', 'integer', 'min:1'],
             'data.*.education_year' => ['required', 'integer'],
             'data.*.semester' => ['required', 'exists:syllabi,id'],
+            'data.*.teacher_id' => ['sometimes', 'exists:users,id'],
             'data.*.groups' => [
                 'required',
                 'array',
