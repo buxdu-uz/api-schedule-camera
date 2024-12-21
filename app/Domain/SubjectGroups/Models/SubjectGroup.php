@@ -52,6 +52,7 @@ class SubjectGroup extends Model
 
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class,'group_subject_group','subject_group_id','group_id');
+        return $this->belongsToMany(Group::class,'group_subject_group','subject_group_id','group_id')
+            ->withPivot(['subject_group_id','group_id','teacher_id']);
     }
 }

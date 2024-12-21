@@ -19,6 +19,12 @@ return new class extends Migration
                 ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignIdFor(SubjectGroup::class)->index()
                 ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('teacher_id')
+                ->index()
+                ->nullable()
+                ->constrained('users') // Explicitly reference the users table
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
         });
     }
 

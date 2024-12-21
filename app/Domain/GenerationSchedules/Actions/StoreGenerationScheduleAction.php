@@ -26,13 +26,17 @@ class StoreGenerationScheduleAction
         try {
 
             foreach ($dto->getData() as $data) {
-                    $syllabus = Syllabus::query()->find($data['syllabi_id']);
-                    $start_date = Carbon::parse($syllabus->start_date);
-                    $end_date = Carbon::parse($syllabus->end_date);
-                    $totalWeeks = $start_date->diffInWeeks($end_date);
-                    $datesForTargetDay = [];
+                $syllabus = Syllabus::query()->find($data['syllabi_id']);
+                $start_date = Carbon::parse($syllabus->start_date);
+                $end_date = Carbon::parse($syllabus->end_date);
+                $totalWeeks = $start_date->diffInWeeks($end_date);
+                $datesForTargetDay = [];
                 $date = Carbon::parse($data['date']);
                 $subjectGroup = SubjectGroup::query()->find($data['subject_group_id']);
+
+                $subjectGroupTeacher = $subjectGroup->whereHas('groups', function ($query) {
+                    $query->whereNotNull('teacher_id'); // More explicit than '!=', ensuring null safety.
+                })->first(); // Add 'first()' or 'get()' depending on your intention.
 
                 if (!$subjectGroup) {
                     throw new Exception('Mavjud subject_group_id topilmadi.');
@@ -71,6 +75,16 @@ class StoreGenerationScheduleAction
                     $generationSchedule->date = $date->toDateString();
                     $generationSchedule->pair = $data['pair'];
                     $generationSchedule->save();
+
+
+                    if ($subjectGroupTeacher) {
+                        $generationSchedule = new GenerationSchedule();
+                        $generationSchedule->teacher_id = $subjectGroupTeacher->groups->first()->pivot->teacher_id;
+                        $generationSchedule->subject_group_id = $data['subject_group_id'];
+                        $generationSchedule->date = $date->toDateString();
+                        $generationSchedule->pair = $data['pair'];
+                        $generationSchedule->save();
+                    }
 
                     // Haftalik jadvalni yangilash
                     $weeklySchedule[$weekNumber][$dayOfWeek] = $date->toDateString();
@@ -116,6 +130,15 @@ class StoreGenerationScheduleAction
                     $generationSchedule->date = $currentWeekDate->toDateString();
                     $generationSchedule->pair = $data['pair'];
                     $generationSchedule->save();
+
+                    if ($subjectGroupTeacher) {
+                        $generationSchedule = new GenerationSchedule();
+                        $generationSchedule->teacher_id = $subjectGroupTeacher->groups->first()->pivot->teacher_id;
+                        $generationSchedule->subject_group_id = $data['subject_group_id'];
+                        $generationSchedule->date = $date->toDateString();
+                        $generationSchedule->pair = $data['pair'];
+                        $generationSchedule->save();
+                    }
 
                     // Haftalik jadvalni yangilash
                     $weeklySchedule[$weekNumber][$dayOfWeek] = $currentWeekDate->toDateString();

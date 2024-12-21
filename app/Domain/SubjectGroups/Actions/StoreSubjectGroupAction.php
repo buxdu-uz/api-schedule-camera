@@ -32,21 +32,15 @@ class StoreSubjectGroupAction
                 $subject_group->semester = $data['semester'];
                 $subject_group->syllabus_id = $data['semester'];
                 $subject_group->save();
-                $subject_group->groups()->attach($data['groups']);
 
-                if($data['split_group'] == 'yes' && $data['teacher_id']){
-                    $subject_group = new SubjectGroup();
-                    $subject_group->teacher_id = $data['teacher_id'];
-                    $subject_group->subject_id = $data['subject_id'];
-                    $subject_group->lesson = $data['lesson'];
-                    $subject_group->flow = FlowOrSplitGroup::from($data['flow']);
-                    $subject_group->split_group = FlowOrSplitGroup::from($data['split_group']);
-                    $subject_group->lesson_hour = $data['lesson_hour'];
-                    $subject_group->h_education_year = $data['education_year'];
-                    $subject_group->semester = $data['semester'];
-                    $subject_group->syllabus_id = $data['semester'];
-                    $subject_group->save();
-                    $subject_group->groups()->attach($data['groups']);
+                if (!empty($data['groups'])) {
+                    if ($data['split_group'] === 'yes' && !empty($data['teacher_id'])) {
+                        $subject_group->groups()->attach($data['groups'], [
+                            'teacher_id' => $data['teacher_id'],
+                        ]);
+                    } else {
+                        $subject_group->groups()->attach($data['groups']);
+                    }
                 }
             }
         } catch (Exception $exception) {

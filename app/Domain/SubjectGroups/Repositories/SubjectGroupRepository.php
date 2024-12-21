@@ -30,7 +30,12 @@ class SubjectGroupRepository
         // Fetch the subject groups, paginate them, and sort
         $subjectGroups = SubjectGroup::query()
             ->Filter($filter)
-            ->where('teacher_id', Auth::id())
+            ->where(function ($query) {
+                $query->where('teacher_id', Auth::id())
+                    ->orWhereHas('groups', function ($subQuery) {
+                        $subQuery->where('group_subject_group.teacher_id', Auth::id());
+                    });
+            })
             ->with('subject') // Eager load the subject relationship
             ->orderBy('subject_id') // Sort by subject name
             ->paginate(10); // Change 10 to your desired number of items per page
