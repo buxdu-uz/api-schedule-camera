@@ -18,11 +18,14 @@ class GroupResource extends JsonResource
     public function toArray(Request $request): array
     {
 //        dd($this->pivot->teacher_id);
+        if($this->pivot){
+            $teacher = User::query()->find($this->pivot->teacher_id);
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
             'department' => $this->department->name,
-            'teacher' => $this->pivot->teacher_id ? new UserRoleResource(User::query()->find($this->pivot->teacher_id)) : null
+            'teacher' => $teacher ?? null
 //            'speciality' => $this->speciality->name,
         ];
     }
