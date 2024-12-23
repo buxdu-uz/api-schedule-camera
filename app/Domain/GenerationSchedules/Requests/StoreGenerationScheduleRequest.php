@@ -6,6 +6,7 @@ use App\Domain\GenerationSchedules\Models\GenerationSchedule;
 use App\Domain\SubjectGroups\Models\SubjectGroup;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreGenerationScheduleRequest extends FormRequest
 {
@@ -66,25 +67,47 @@ class StoreGenerationScheduleRequest extends FormRequest
                         return;
                     }
 
-                    // Haftalar bo'yicha cheklov
                     $syllabusStartDate = Carbon::parse($date);
                     $syllabusEndDate = Carbon::parse($subjectGroup->syllabi->end_date);
 
                     $weeksCount = $syllabusStartDate->diffInWeeks($syllabusEndDate);
                     $totalPairs = $subjectGroup->lesson_hour / 2;
-                    $pairsPerWeek = ceil($totalPairs / $weeksCount); // Ensure pairsPerWeek is at least 1
-                    $weeklyPairsCount = GenerationSchedule::query()
+
+                    // ** Yangi qo'shilgan shart: Agar totalPairs GenerationSchedule dagi mavjud rekordlar soniga teng bo'lsa **
+                    $existingScheduleCount = GenerationSchedule::query()
                         ->where('subject_group_id', $subjectGroupId)
-                        ->whereBetween('date', [$syllabusStartDate, $syllabusEndDate])
-                        ->whereRaw('WEEK(date) = WEEK(?)', [$date])
+                        ->where('teacher_id', Auth::id())
                         ->count();
 
-                    if ($weeklyPairsCount >= $pairsPerWeek) {
-                        $fail("Subject group ID {$subjectGroupId} haftada faqat {$pairsPerWeek} marta dars bo'lishi mumkin.");
+                    if ($existingScheduleCount >= $totalPairs) {
+                        $fail("Subject group ID {$subjectGroupId} uchun barcha soatlar biriktirilgan.");
+                        return;
                     }
 
-                    // Lecture uchun bir kunda faqat bitta dars
-                    if ($subjectGroup->lesson === 'lecture') {
+
+                    if ($weeksCount > 0) {
+                        $pairsPerWeek = ceil($totalPairs / $weeksCount);
+                        $weeklyPairsCount = GenerationSchedule::query()
+                            ->where('subject_group_id', $subjectGroupId)
+                            ->whereBetween('date', [$syllabusStartDate, $syllabusEndDate])
+                            ->whereRaw('WEEK(date) = WEEK(?)', [$date])
+                            ->count();
+
+                        if ($weeklyPairsCount >= $pairsPerWeek) {
+                            $fail("Subject group ID {$subjectGroupId} haftada faqat {$pairsPerWeek} marta dars bo'lishi mumkin.");
+                        }
+                    } else {
+                        $existingScheduleCount = GenerationSchedule::query()
+                            ->where('subject_group_id', $subjectGroupId)
+                            ->whereBetween('date', [$syllabusStartDate, $syllabusEndDate])
+                            ->count();
+
+                        if ($existingScheduleCount >= $totalPairs) {
+                            $fail("Subject group ID {$subjectGroupId} uchun faqat syllabusdagi sanalargacha bo'lgan darslar biriktirilishi mumkin.");
+                        }
+                    }
+
+                    if ($subjectGroup->lesson === 'lecture' && Carbon::parse($date)->dayOfWeek > 6) {
                         $lectureCount = GenerationSchedule::query()
                             ->where('subject_group_id', $subjectGroupId)
                             ->where('date', $date)
@@ -95,43 +118,33 @@ class StoreGenerationScheduleRequest extends FormRequest
                         }
                     }
 
-                    // Sana va juftlik bo'yicha unikal bo'lishi
-                    $exists = GenerationSchedule::query()
-                        ->where('subject_group_id', $subjectGroupId)
-                        ->where('date', $date)
-                        ->where('pair', $pair)
-                        ->exists();
-
-                    if ($exists) {
-                        $fail("Subject group ID {$subjectGroupId} uchun sana va juftlik kombinatsiyasi allaqachon mavjud.");
-                    }
-                    // If pairsPerWeek is less than 1, allow only 1 entry
-                    if (($totalPairs / $weeksCount) < 1) {
-                        $existingScheduleCount = GenerationSchedule::query()
+                    if(Carbon::parse($date)->dayOfWeek > 6){
+                        $exists = GenerationSchedule::query()
                             ->where('subject_group_id', $subjectGroupId)
-                            ->count();
+                            ->where('date', $date)
+                            ->where('pair', $pair)
+                            ->exists();
 
-                        if ($existingScheduleCount >= 1) {
-                            $fail("Subject group ID {$subjectGroupId} uchun faqat bitta dars bir kunda bo'lishi mumkin.");
+                        if ($exists) {
+                            $fail("Subject group ID {$subjectGroupId} uchun sana va juftlik kombinatsiyasi allaqachon mavjud.");
+                        }
+                        $groupIds = $subjectGroup->groups->pluck('id');
+
+                        $groupConflict = GenerationSchedule::query()
+                            ->whereHas('subjectGroup.groups', function ($query) use ($groupIds) {
+                                $query->whereIn('group_id', $groupIds);
+                            })
+                            ->where('date', $date)
+                            ->where('pair', $pair)
+                            ->exists();
+
+                        if ($groupConflict) {
+                            $fail("Ushbu guruhlarga ushbu parada oldin dars biriktirilgan.");
                         }
                     }
 
-                    // Check group conflicts
-                    $groupIds = $subjectGroup->groups->pluck('id');
-                    $groupConflict = GenerationSchedule::query()
-                        ->whereHas('subjectGroup.groups', function ($query) use ($groupIds) {
-                            $query->whereIn('group_id', $groupIds);
-                        })
-                        ->where('date', $date)
-                        ->where('pair', $pair)
-                        ->exists();
-
-                    if ($groupConflict) {
-                        $fail("Ushbu guruhlarga ushbu parada oldin dars biriktirilgan.");
-                    }
                 },
             ],
         ];
     }
-
 }
