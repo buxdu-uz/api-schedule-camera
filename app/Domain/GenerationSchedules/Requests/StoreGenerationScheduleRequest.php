@@ -79,7 +79,7 @@ class StoreGenerationScheduleRequest extends FormRequest
                         ->where('teacher_id', Auth::id())
                         ->count();
 
-                    if ($existingScheduleCount >= $totalPairs) {
+                    if ($existingScheduleCount == $totalPairs) {
                         $fail("Subject group ID {$subjectGroupId} uchun barcha soatlar biriktirilgan.");
                         return;
                     }
