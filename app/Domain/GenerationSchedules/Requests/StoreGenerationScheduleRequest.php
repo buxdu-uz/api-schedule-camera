@@ -129,20 +129,18 @@ class StoreGenerationScheduleRequest extends FormRequest
                             $fail("Subject group ID {$subjectGroupId} uchun sana va juftlik kombinatsiyasi allaqachon mavjud.");
                         }
                         $groupIds = $subjectGroup->groups->pluck('id');
-
-                        $groupConflict = GenerationSchedule::query()
-                            ->whereHas('subjectGroup.groups', function ($query) use ($groupIds) {
-                                $query->whereIn('group_id', $groupIds);
-                            })
-                            ->where('date', $date)
-                            ->where('pair', $pair)
-                            ->exists();
-
-                        if ($groupConflict) {
-                            $fail("Ushbu guruhlarga ushbu parada oldin dars biriktirilgan.");
-                        }
                     }
+                    $groupConflict = GenerationSchedule::query()
+                        ->whereHas('subjectGroup.groups', function ($query) use ($groupIds) {
+                            $query->whereIn('group_id', $groupIds);
+                        })
+                        ->where('date', $date)
+                        ->where('pair', $pair)
+                        ->exists();
 
+                    if ($groupConflict) {
+                        $fail("Ushbu guruhlarga ushbu parada oldin dars biriktirilgan.");
+                    }
                 },
             ],
         ];
