@@ -59,7 +59,7 @@ class GroupSeeder extends Seeder
             try {
                 if($item->specialty->id == 17){
                     $speciality_id = 109;
-                }elseif($item->specialty->id == 179){
+                }elseif($item->specialty->id == 179 || $item->specialty->id == 9){
                     $speciality_id = 163;
                 }else{
                     $speciality_id = $item->specialty->id;
