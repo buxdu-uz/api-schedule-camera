@@ -15,7 +15,7 @@ class DepartmentRepository
     {
         return Department::query()
             ->where('name','not like','%(nofaol)%')
-            ->where('h_structure_type',4159)    //FAKULTET
+            ->where('h_structure_type',4161)    //FAKULTET
             ->get()
             ->sortBy('name');
     }
