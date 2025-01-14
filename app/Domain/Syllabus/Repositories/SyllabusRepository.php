@@ -14,6 +14,7 @@ class SyllabusRepository
     public function getAll()
     {
         return Syllabus::query()
+            ->orderBy('id')
             ->get();
     }
 }

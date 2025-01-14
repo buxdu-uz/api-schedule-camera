@@ -31,6 +31,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::get('export/buildings/rooms', [BuildingController::class, 'exportBuilding']);
     Route::get('subjects',[SubjectController::class,'paginate']);
     Route::post('syllabus',[SyllabusController::class,'store']);
+    Route::put('syllabus/{syllabus}',[SyllabusController::class,'update']);
     Route::get('subject_groups',[SubjectGroupController::class,'index']);
     Route::get('camera/favourites',[CameraController::class,'getAllFavouriteCameras']);
 
