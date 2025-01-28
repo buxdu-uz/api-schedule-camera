@@ -38,16 +38,16 @@ class ScheduleResource extends JsonResource
                 'week_end_lesson' => $weekEndTime,
             ]
         ];
-        // Only include 'camera' field if the user is not a teacher
-        if (Auth::user()->getRoleNames()[0] == 'admin') {
-            $baseData['camera'] = CameraResource::collection(
-                Camera::whereHas('rooms', function ($query) {
-                    $query->where('rooms.code', $this->auditorium->code);
-                })->get()
-            );
-        }else{
-            $baseData['camera'] = CameraResource::collection(Auth::user()->cameras);
-        }
+//        // Only include 'camera' field if the user is not a teacher
+//        if (Auth::user()->getRoleNames()[0] == 'admin') {
+//            $baseData['camera'] = CameraResource::collection(
+//                Camera::whereHas('rooms', function ($query) {
+//                    $query->where('rooms.code', $this->auditorium->code);
+//                })->get()
+//            );
+//        }else{
+//            $baseData['camera'] = CameraResource::collection(Auth::user()->cameras);
+//        }
 
         return $baseData;
     }
