@@ -42,16 +42,17 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::delete('favourites/{favourite}',[FavouriteController::class,'destroy']);
 });
 
+//public
+    Route::get('/schedule/list',[ScheduleListController::class,'getScheduleListHemis']);
+    Route::get('buildings',[BuildingController::class,'index']);
+    Route::get('departments', [DepartmentController::class, 'getAllFakultet']);
+    Route::post('/groups',[GroupController::class,'index']);
+    Route::get('departments/all', [DepartmentController::class, 'getAll']);
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
     Route::get('education_years',[SubjectGroupController::class,'educationYears']);
-    Route::get('/schedule/list',[ScheduleListController::class,'getScheduleListHemis']);
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
-    Route::post('/groups',[GroupController::class,'index']);
-    Route::get('departments', [DepartmentController::class, 'getAllFakultet']);
-    Route::get('departments/all', [DepartmentController::class, 'getAll']);
     Route::get('users',[UserController::class,'getAllUser']);
     Route::get('users/{department_id}',[UserController::class,'getAllDepartmentUser']);
-    Route::get('buildings',[BuildingController::class,'index']);
     Route::get('user/cameras',[UserController::class,'userCamera']);
 
 
@@ -70,4 +71,5 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['auth:sanctum','role:teach
     Route::post('subject_groups',[SubjectGroupController::class,'store']);
     Route::get('own/subject_group', [SubjectGroupController::class,'getOwnSubjectGroup']);
 });
+
 
