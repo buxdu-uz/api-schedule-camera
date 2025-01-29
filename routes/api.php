@@ -48,10 +48,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
     Route::get('departments', [DepartmentController::class, 'getAllFakultet']);
     Route::post('/groups',[GroupController::class,'index']);
     Route::get('departments/all', [DepartmentController::class, 'getAll']);
+    Route::get('users',[UserController::class,'getAllUser']);
 Route::group(['middleware' => ['auth:sanctum', 'role:teacher|employee|admin|manager']], function () {
     Route::get('education_years',[SubjectGroupController::class,'educationYears']);
     Route::post('/update/login', [LoginController::class, 'updateLoginPassword']);
-    Route::get('users',[UserController::class,'getAllUser']);
     Route::get('users/{department_id}',[UserController::class,'getAllDepartmentUser']);
     Route::get('user/cameras',[UserController::class,'userCamera']);
 
