@@ -15,6 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_profiles', function (Blueprint $table) {
+            $table->id();
             $table->foreignIdFor(User::class)->index()->unique()
                 ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignIdFor(Department::class)->nullable()

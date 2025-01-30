@@ -73,59 +73,46 @@ class PersonalService
         foreach (collect($result->data->items)->sortBy('id') as $item) {
             DB::beginTransaction();
             try {
-                if (!User::where('id', $item->id)
-                    ->orWhere('employee_id', $item->employee_id_number)->exists()) {
                     $user = User::updateOrCreate([
                         'id' => $item->id,
+                        'employee_id' => $item->employee_id_number,
                     ], [
                         'name' => $item->full_name,
-                        'employee_id' => $item->employee_id_number,
-//                        'login' => $this->getUniqLogin($item),
                         'login' => $item->employee_id_number,
                         'password' => bcrypt($item->employee_id_number),
                         'avatar' => $item->image,
                     ]);
 
-                    $user->profile()->updateOrCreate([
-                        'user_id' => $user->id,
-                    ], [
-                        'department_id' => Department::getIdByCode($item->department->code) ?? null,
-                        'full_name' => $item->full_name,
-                        'short_name' => $item->short_name,
-                        'first_name' => $item->first_name,
-                        'second_name' => $item->second_name,
-                        'third_name' => $item->third_name,
-                        'year_of_enter' => $item->year_of_enter,
-                        'gender' => ClassifierOption::getId('gender', $item->gender->code),
-                        'h_academic_degree' => ClassifierOption::getId(
-                            'academicDegree',
-                            $item->academicDegree->code
-                        ),
-                        'h_academic_rank' => ClassifierOption::getId('academicRank', $item->academicRank->code),
-                        'h_employment_form' => ClassifierOption::getId(
-                            'employmentForm',
-                            $item->employmentForm->code
-                        ),
-                        'h_employment_staff' => ClassifierOption::getId(
-                            'employmentStaff',
-                            $item->employmentStaff->code
-                        ),
-                        'h_staff_position' => ClassifierOption::getId(
-                            'teacherPositionType',
-                            $item->staffPosition->code
-                        ),
-                        'h_employee_status' => ClassifierOption::getId('employeeType', $item->employeeStatus->code),
-                        'h_employee_type' => ClassifierOption::getId('employeeType', $item->employeeType->code),
-                        'birth_date' => date('Y-m-d', $item->birth_date),
-                        'contract_number' => $item->contract_number,
-                        'decree_number' => $item->decree_number,
-                        'contract_date' => date('Y-m-d', $item->contract_date),
-                        'decree_date' => date('Y-m-d', $item->decree_date),
-                        'tutorGroups' => json_encode($item->tutorGroups),
-                    ]);
+                $userProfile = $user->profile()->firstOrNew([
+                    'user_id' => $user->id,
+                ]);
+
+                $userProfile->fill([
+                    'department_id' => Department::getIdByCode($item->department->code) ?? null,
+                    'full_name' => $item->full_name,
+                    'short_name' => $item->short_name,
+                    'first_name' => $item->first_name,
+                    'second_name' => $item->second_name,
+                    'third_name' => $item->third_name,
+                    'year_of_enter' => $item->year_of_enter,
+                    'gender' => ClassifierOption::getId('gender', $item->gender->code),
+                    'h_academic_degree' => ClassifierOption::getId('academicDegree', $item->academicDegree->code),
+                    'h_academic_rank' => ClassifierOption::getId('academicRank', $item->academicRank->code),
+                    'h_employment_form' => ClassifierOption::getId('employmentForm', $item->employmentForm->code),
+                    'h_employment_staff' => ClassifierOption::getId('employmentStaff', $item->employmentStaff->code),
+                    'h_staff_position' => ClassifierOption::getId('teacherPositionType', $item->staffPosition->code),
+                    'h_employee_status' => ClassifierOption::getId('employeeType', $item->employeeStatus->code),
+                    'h_employee_type' => ClassifierOption::getId('employeeType', $item->employeeType->code),
+                    'birth_date' => date('Y-m-d', $item->birth_date),
+                    'contract_number' => $item->contract_number,
+                    'decree_number' => $item->decree_number,
+                    'contract_date' => date('Y-m-d', $item->contract_date),
+                    'decree_date' => date('Y-m-d', $item->decree_date),
+                    'tutorGroups' => json_encode($item->tutorGroups),
+                ]);
+
+                $userProfile->save();
                     $this->assignRoleToEmployee($user, $type, $item);
-                }
-                // Assign role
                 DB::commit();
             } catch (\Exception $exception) {
                 echo json_encode($item);
@@ -152,7 +139,6 @@ class PersonalService
                 $roleName = $item->staffPosition->name;
             }
         }
-//        $roleName = ($type === 'teacher') ? $type : $item->staffPosition->name;
         $role = Role::updateOrCreate([
             'name' => Str::slug($roleName),
         ], [
