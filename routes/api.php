@@ -44,6 +44,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum','role:admin']
 
 //public
     Route::get('/schedule/list',[ScheduleListController::class,'getScheduleListHemis']);
+    Route::get('/schedule/currentDay',[ScheduleListController::class,'getDailySchedule']);
     Route::get('/schedule/room/list',[ScheduleListController::class,'getWeeklySchedule']);
     Route::get('buildings',[BuildingController::class,'index']);
     Route::get('departments', [DepartmentController::class, 'getAllFakultet']);

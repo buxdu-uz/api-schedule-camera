@@ -160,6 +160,94 @@ class ScheduleListController extends Controller
         return $this->successResponse('', $sortedData);
     }
 
+    public function getDailySchedule(Req $request)
+    {
+        $today = Carbon::today()->timestamp;
+
+        $request->validate([
+            'employee_id' => 'required',
+        ]);
+
+        $client = new Client();
+        $headers = [
+            'Authorization' => 'Bearer ' . config('hemis.api_key'),
+            'Accept' => 'application/json',
+        ];
+
+        $base_url = config('hemis.host') . 'data/schedule-list?limit=' . config('hemis.limit') .
+            '&_employee='.$request->employee_id;
+
+        // 1. API-dan birinchi sahifani olish va sahifalar sonini aniqlash
+        $response = $client->get($base_url . '&page=1', ['headers' => $headers]);
+        $resBody = json_decode($response->getBody());
+
+        if (!isset($resBody->data->items)) {
+            return $this->successResponse('', []);
+        }
+
+        $pageCount = $resBody->data->pagination->pageCount ?? 1;
+
+        // 2. Paralel so‘rovlar (Guzzle's async requests)
+        $promises = [];
+        for ($page = 2; $page <= $pageCount; $page++) {
+            $promises[$page] = $client->getAsync($base_url . '&page=' . $page, ['headers' => $headers]);
+        }
+
+        $responses = Utils::settle($promises)->wait();
+
+        // 3. Ma'lumotlarni yig'ish
+        $data = collect($resBody->data->items);
+
+        foreach ($responses as $response) {
+            if ($response['state'] === 'fulfilled') {
+                $resData = json_decode($response['value']->getBody());
+                if (isset($resData->data->items)) {
+                    $data = $data->merge($resData->data->items);
+                }
+            }
+        }
+
+        if ($data->isEmpty()) {
+            return $this->successResponse('', []);
+        }
+
+        // 4. Faqat bugungi kun uchun filter
+        $groupedData = [];
+
+        foreach ($data as $lesson) {
+            if (!isset($lesson->lesson_date, $lesson->educationYear->current) ||
+                Carbon::parse($lesson->lesson_date)->toDateString() !== Carbon::today()->toDateString() ||
+                !$lesson->educationYear->current
+            ) {
+                continue;
+            }
+
+            if ($request->room_id && ($lesson->auditorium->code ?? '') !== $request->room_id) {
+                continue;
+            }
+
+            $date = Carbon::parse($lesson->lesson_date)->format('Y-m-d');
+            $building = $lesson->auditorium->building->name ?? 'Unknown Building';
+            $room = $lesson->auditorium->name ?? 'Unknown Room';
+            $timeSlot = isset($lesson->lessonPair->start_time, $lesson->lessonPair->end_time)
+                ? Carbon::parse($lesson->lessonPair->start_time)->format('H:i') . ' - ' .
+                Carbon::parse($lesson->lessonPair->end_time)->format('H:i')
+                : '-';
+
+            $status = isset($lesson->lessonPair) ? '+' : '-';
+
+            $groupedData[$date][$building][$room][$timeSlot] = $status;
+        }
+
+        // Tartiblash
+        $sortedData = collect($groupedData)->sortKeys()->map(fn($buildings) =>
+        collect($buildings)->map(fn($rooms) =>
+        collect($rooms)->map(fn($times) => collect($times)->sortKeys()->toArray())->toArray()
+        )->toArray()
+        )->toArray();
+
+        return $this->successResponse('', $sortedData);
+    }
 
 
 
