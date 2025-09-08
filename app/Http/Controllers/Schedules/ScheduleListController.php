@@ -164,24 +164,25 @@ class ScheduleListController extends Controller
     {
         $request->validate([
             'employee_id' => 'required',
-            'lesson_date_from' => 'required|date',
-            'lesson_date_to' => 'required|date',
+            'lesson_date' => 'required|date'
         ]);
+
+        $requestDate = Carbon::parse($request->lesson_date)->startOfDay();
+        $today       = Carbon::today();
+        $now         = Carbon::now();
 
         $client = new Client();
         $headers = [
             'Authorization' => 'Bearer ' . config('hemis.api_key'),
-            'Accept' => 'application/json',
+            'Accept'        => 'application/json',
         ];
 
         $base_url = config('hemis.host') . 'data/schedule-list?limit=' . config('hemis.limit') .
-            '&_employee=' . $request->employee_id .
-            '&lesson_date_from=' . Carbon::parse($request->lesson_date_from)->startOfDay()->timestamp .
-            '&lesson_date_to='   . Carbon::parse($request->lesson_date_to)->endOfDay()->timestamp;
+            '&_employee=' . $request->employee_id;
 
-        // 1. API-dan birinchi sahifani olish va sahifalar sonini aniqlash
+// 1. Birinchi sahifa
         $response = $client->get($base_url . '&page=1', ['headers' => $headers]);
-        $resBody = json_decode($response->getBody());
+        $resBody  = json_decode($response->getBody());
 
         if (!isset($resBody->data->items)) {
             return $this->successResponse('', []);
@@ -189,7 +190,7 @@ class ScheduleListController extends Controller
 
         $pageCount = $resBody->data->pagination->pageCount ?? 1;
 
-        // 2. Paralel so‘rovlar
+// 2. Paralel so‘rovlar
         $promises = [];
         for ($page = 2; $page <= $pageCount; $page++) {
             $promises[$page] = $client->getAsync($base_url . '&page=' . $page, ['headers' => $headers]);
@@ -197,9 +198,8 @@ class ScheduleListController extends Controller
 
         $responses = Utils::settle($promises)->wait();
 
-        // 3. Ma'lumotlarni yig'ish
+// 3. Ma'lumotlarni yig‘ish
         $data = collect($resBody->data->items);
-
         foreach ($responses as $response) {
             if ($response['state'] === 'fulfilled') {
                 $resData = json_decode($response['value']->getBody());
@@ -213,16 +213,20 @@ class ScheduleListController extends Controller
             return $this->successResponse('', []);
         }
 
-        // 4. Sana bo‘yicha filter (lesson_date_from ~ lesson_date_to)
-        $groupedData = [];
+// 4. Sana bo‘yicha filter
+        $filteredDate = Carbon::parse($request->lesson_date)->format('Y-m-d');
+        $groupedData  = [];
+
         foreach ($data as $lesson) {
             if (!isset($lesson->lesson_date, $lesson->educationYear->current) || !$lesson->educationYear->current) {
                 continue;
             }
 
-            $lessonDate = Carbon::parse($lesson->lesson_date);
+            $lessonDate = Carbon::parse($lesson->lesson_date)->format('Y-m-d');
+            if ($lessonDate !== $filteredDate) {
+                continue; // Faqat requestdagi sanani olamiz
+            }
 
-            $date = $lessonDate->format('Y-m-d');
             $building = $lesson->auditorium->building->name ?? 'Unknown Building';
             $subject  = $lesson->subject->name ?? 'Unknown Subject';
             $group    = $lesson->group->name ?? 'Unknown Group';
@@ -231,12 +235,28 @@ class ScheduleListController extends Controller
                 ? Carbon::parse($lesson->lessonPair->start_time)->format('H:i') . ' - ' .
                 Carbon::parse($lesson->lessonPair->end_time)->format('H:i')
                 : false;
-//            dump($timeSlot);
 
-//            $status = isset($lesson->lessonPair) ? true : false;
-            $status = ($lesson->lessonPair->end_time <= date('H:i')) ? false : true;
+            // Hozirgi vaqtni requestdagi sana + hozirgi soat/daqiqaga bog‘lab tekshirish
+            $now = Carbon::parse($request->lesson_date . ' ' . Carbon::now()->format('H:i:s'));
 
-            $groupedData[$date][] = [
+            $status = false;
+
+            if (isset($lesson->lessonPair->start_time, $lesson->lessonPair->end_time)) {
+                $end = Carbon::parse($lesson->lessonPair->end_time);
+
+                if ($requestDate->greaterThan($today)) {
+                    // Kelajakdagi kun -> hali boshlanmagan
+                    $status = true;
+                } elseif ($requestDate->equalTo($today)) {
+                    // Bugungi dars -> vaqtni tekshiramiz
+                    $status = $now->lessThanOrEqualTo($end);
+                } else {
+                    // O‘tgan kun -> tugagan
+                    $status = false;
+                }
+            }
+
+            $groupedData[$lessonDate][] = [
                 'bino'    => $building,
                 'subject' => $subject,
                 'group'   => $group,
@@ -245,7 +265,7 @@ class ScheduleListController extends Controller
             ];
         }
 
-// 5. Tartiblash (sana bo‘yicha sort)
+// 5. Sortlash
         $sortedData = collect($groupedData)->sortKeys()->toArray();
 
         return $this->successResponse('', $sortedData);
