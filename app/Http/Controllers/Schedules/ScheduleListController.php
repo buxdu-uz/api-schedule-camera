@@ -162,10 +162,10 @@ class ScheduleListController extends Controller
 
     public function getDailySchedule(Req $request)
     {
-        $today = Carbon::today()->timestamp;
-
         $request->validate([
             'employee_id' => 'required',
+            'lesson_date_from' => 'required|date',
+            'lesson_date_to' => 'required|date',
         ]);
 
         $client = new Client();
@@ -175,7 +175,9 @@ class ScheduleListController extends Controller
         ];
 
         $base_url = config('hemis.host') . 'data/schedule-list?limit=' . config('hemis.limit') .
-            '&_employee='.$request->employee_id;
+            '&_employee=' . $request->employee_id .
+            '&lesson_date_from=' . Carbon::parse($request->lesson_date_from)->startOfDay()->timestamp .
+            '&lesson_date_to='   . Carbon::parse($request->lesson_date_to)->endOfDay()->timestamp;
 
         // 1. API-dan birinchi sahifani olish va sahifalar sonini aniqlash
         $response = $client->get($base_url . '&page=1', ['headers' => $headers]);
@@ -187,7 +189,7 @@ class ScheduleListController extends Controller
 
         $pageCount = $resBody->data->pagination->pageCount ?? 1;
 
-        // 2. Paralel so‘rovlar (Guzzle's async requests)
+        // 2. Paralel so‘rovlar
         $promises = [];
         for ($page = 2; $page <= $pageCount; $page++) {
             $promises[$page] = $client->getAsync($base_url . '&page=' . $page, ['headers' => $headers]);
@@ -211,24 +213,20 @@ class ScheduleListController extends Controller
             return $this->successResponse('', []);
         }
 
-        // 4. Faqat bugungi kun uchun filter
+        // 4. Sana bo‘yicha filter (lesson_date_from ~ lesson_date_to)
         $groupedData = [];
-
         foreach ($data as $lesson) {
-            if (!isset($lesson->lesson_date, $lesson->educationYear->current) ||
-                Carbon::parse($lesson->lesson_date)->toDateString() !== Carbon::today()->toDateString() ||
-                !$lesson->educationYear->current
-            ) {
+            if (!isset($lesson->lesson_date, $lesson->educationYear->current) || !$lesson->educationYear->current) {
                 continue;
             }
 
-            if ($request->room_id && ($lesson->auditorium->code ?? '') !== $request->room_id) {
-                continue;
-            }
+            $lessonDate = Carbon::parse($lesson->lesson_date);
 
-            $date = Carbon::parse($lesson->lesson_date)->format('Y-m-d');
+            $date = $lessonDate->format('Y-m-d');
             $building = $lesson->auditorium->building->name ?? 'Unknown Building';
-            $room = $lesson->auditorium->name ?? 'Unknown Room';
+            $subject  = $lesson->subject->name ?? 'Unknown Subject';
+            $group    = $lesson->group->name ?? 'Unknown Group';
+
             $timeSlot = isset($lesson->lessonPair->start_time, $lesson->lessonPair->end_time)
                 ? Carbon::parse($lesson->lessonPair->start_time)->format('H:i') . ' - ' .
                 Carbon::parse($lesson->lessonPair->end_time)->format('H:i')
@@ -236,15 +234,17 @@ class ScheduleListController extends Controller
 
             $status = isset($lesson->lessonPair) ? '+' : '-';
 
-            $groupedData[$date][$building][$room][$timeSlot] = $status;
+            $groupedData[$date][] = [
+                'bino'    => $building,
+                'subject' => $subject,
+                'group'   => $group,
+                'pair'    => $timeSlot,
+                'status'  => $status,
+            ];
         }
 
-        // Tartiblash
-        $sortedData = collect($groupedData)->sortKeys()->map(fn($buildings) =>
-        collect($buildings)->map(fn($rooms) =>
-        collect($rooms)->map(fn($times) => collect($times)->sortKeys()->toArray())->toArray()
-        )->toArray()
-        )->toArray();
+// 5. Tartiblash (sana bo‘yicha sort)
+        $sortedData = collect($groupedData)->sortKeys()->toArray();
 
         return $this->successResponse('', $sortedData);
     }
