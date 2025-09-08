@@ -232,7 +232,7 @@ class ScheduleListController extends Controller
                 Carbon::parse($lesson->lessonPair->end_time)->format('H:i')
                 : '-';
 
-            $status = isset($lesson->lessonPair) ? '+' : '-';
+            $status = isset($lesson->lessonPair) ? true : false;
 
             $groupedData[$date][] = [
                 'bino'    => $building,
