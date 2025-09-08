@@ -230,9 +230,11 @@ class ScheduleListController extends Controller
             $timeSlot = isset($lesson->lessonPair->start_time, $lesson->lessonPair->end_time)
                 ? Carbon::parse($lesson->lessonPair->start_time)->format('H:i') . ' - ' .
                 Carbon::parse($lesson->lessonPair->end_time)->format('H:i')
-                : '-';
+                : false;
+//            dump($timeSlot);
 
-            $status = isset($lesson->lessonPair) ? true : false;
+//            $status = isset($lesson->lessonPair) ? true : false;
+            $status = ($lesson->lessonPair->end_time <= date('H:i')) ? false : true;
 
             $groupedData[$date][] = [
                 'bino'    => $building,
